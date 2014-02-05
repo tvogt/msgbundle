@@ -1,0 +1,63 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'conversation.title'|trans({}, "MsgBundle")|title }}</h2>
+
+{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":data[0]} %}
+
+
+<div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
+	{{ render(controller('MsgBundle:Write:reply')) }}
+</div>
+
+{% endblock %}
+
+{% block jquery %}
+$("#replydialog").dialog({
+	autoOpen: false,
+	width: "50%",
+	position: { my: "center top", at: "center bottom", of: $("#symfony-header") }
+});
+$(".cmsg_conversation").on("click", "button.reply", function(){
+	var id = $(this).closest('.cmsg_message').data('id');
+	console.log(id);
+
+	$("#replydialog").dialog("open");	
+	$("#message_reply_conversation").val(0);
+	$("#message_reply_reply_to").val(id);
+
+	$("#replydialog form").attr('action', '{{ path('cmsg_reply') }}');
+});
+
+var request;
+var target;
+$(".cmsg_conversation").on("click", "button.show", function(){
+	console.log("show...");
+	var id = $(this).closest('.cmsg_message').data('id');
+	var type = $(this).data('type');
+
+	// abort any pending request
+	if (request) {
+		request.abort();
+	}
+
+	var target = $(this).parent();
+	// fire off the request
+	request = $.ajax({
+		url: "{{ path('cmsg_related') }}",
+		type: "get",
+		data: { 'id': id, 'type': type },
+	});
+
+	// callback handler that will be called on success
+	request.done(function (response, textStatus, jqXHR){
+		target.html(response);
+	});
+
+	// callback handler that will be called on failure
+	request.fail(function (jqXHR, textStatus, errorThrown){
+		target.html(textStatus);
+	});
+});
+
+{% endblock %}

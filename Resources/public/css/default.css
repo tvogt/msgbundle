@@ -1,0 +1,89 @@
+
+.cmsg_conversation {
+	background-color: rgba(0,0,0,0.2);
+	padding: 0.1em 2em;
+}
+
+.cmsg_message {
+	margin-left: 6em;
+	margin-bottom: 2em;
+	position: relative;
+}
+
+.cmsg_message_meta {
+	background-color: rgba(0,0,127,0.2);
+	padding: 0.25em;
+}
+
+.cmsg_message_meta ul {
+	margin: 0.1em;
+	padding: 0.1em;
+}
+
+.cmsg_message_meta li {
+	list-style: none;
+	display: inline;
+}
+
+ul.cmsg_flags {
+	float: left;
+	margin-right: 2em;
+}
+
+ul.cmsg_tags li:before {
+    content: " - ";
+}
+ul.cmsg_tags li:first-child:before {
+    content: "";
+}
+
+
+
+.cmsg_actions {
+	background-color: rgba(127,0,0,0.2);
+	padding: 0.25em;
+}
+
+ul.cmsg_actions {
+	position: absolute;
+	top: 0px;
+	left: -6em;
+	width: 5em;
+	text-align: center
+}
+
+.cmsg_actions li {
+	display: inline;
+}
+
+.cmsg_actions button {
+	width: 100%;
+}
+
+.cmsg_related {
+	background-color: rgba(127,127,0,0.2);
+	padding: 0.25em 0 0.25em 0.25em;
+	margin: 0;
+}
+
+.cmsg_related ul {
+	margin: 0;
+}
+
+.cmsg_related li {
+	list-style: none;
+}
+
+
+.cmsg_content {
+	background-color: rgba(0,0,0,0.1);
+	padding: 0.25em;
+}
+
+#message_reply label {
+	display: block;
+}
+
+#message_reply textarea {
+	width: 100%;
+}

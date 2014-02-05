@@ -1,0 +1,12 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'summary.title'|trans({}, "MsgBundle")|title }}</h2>
+{% if new.messages > 0 %}
+	<p>{{ 'summary.new'|trans({"%messages%":new.messages, "%conversations%":new.conversations}, "MsgBundle") }}</p>
+{% else %}
+	<p>{{ 'summary.nonew'|trans({}, "MsgBundle") }}</p>
+{% endif %}
+
+
+{% endblock %}

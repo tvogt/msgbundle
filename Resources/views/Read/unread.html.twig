@@ -1,0 +1,13 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'unread.title'|trans({}, "MsgBundle")|title }}</h2>
+
+
+<ul>
+{% for meta in unread %}
+	<li><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a> ({{ meta.unread }} new messages)</li>
+{% endfor %}
+<ul>
+
+{% endblock %}

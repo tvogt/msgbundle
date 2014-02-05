@@ -1,0 +1,8 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'conversation.new.title'|trans({}, "MsgBundle")|title }}</h2>
+
+{{ form(form) }}
+
+{% endblock %}

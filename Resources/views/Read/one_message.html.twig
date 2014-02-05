@@ -1,0 +1,60 @@
+<div class="cmsg_message" data-id="{{ message.id }}">
+	<div class="cmsg_message_meta">
+		by {{ message.sender.name }}
+		on {{ message.ts|date }}
+	</div>
+	{% if hide is defined %}
+		{% set related_messages = message.relatedtomeexcept(hide) %}
+	{% else %}
+		{% set related_messages = message.relatedtome %}
+	{% endif %}
+	{% if related_messages is not empty %}
+		{# TODO: under some conditions, we want to show them right away (say, positive score, or flagged important, or whatever) #}
+		<div class="cmsg_related">
+		in response to: <button class="show" data-type="source">show here</button>
+		{% for related in related_messages %}
+			<li>message from {{ related.source.sender.name }} ({{ related.source.ts|date }})</li>
+			{# TODO: if in a different conversation add something like (in "other topic name") with a link #}
+		{% endfor %}
+		</ul></div>
+	{% endif %}
+
+	<div class="cmsg_content">
+		{{ message.content }}
+	</div>
+
+	<div class="cmsg_message_meta">
+		<ul class="cmsg_flags">
+			{# TODO: again we need the metadata - how? #}
+			<li><input type="checkbox" /></li>
+			<li><input type="checkbox" /></li>
+			<li><input type="checkbox" /></li>
+		</ul>
+		<ul class="cmsg_tags">
+			{# TODO: again we need the metadata - how? #}
+			<li>some tag</li>
+			<li>another tag</li>
+			<li>whatever</li>
+		</ul>
+	</div>
+
+	<ul class="cmsg_actions">
+		<li><button class="reply">reply</button></li>
+		<li><button class="split">split</button></li>
+	</ul>
+	{% if hide is defined %}
+		{% set related_messages = message.relatedmessagesexcept(hide) %}
+	{% else %}
+		{% set related_messages = message.relatedmessages %}
+	{% endif %}
+	{% if message.relatedmessages is not empty %}
+		<div class="cmsg_related">
+		responses: <button class="show" data-type="target">show here</button>
+		<ul>
+		{% for related in related_messages %}
+			<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
+		{% endfor %}
+		</ul>
+		</div>
+	{% endif %}
+</div>

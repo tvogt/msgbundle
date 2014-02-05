@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping>
+	<entity name="Calitarus\MessagingBundle\Entity\Message" table="cmsg_message">
+		<id name="id" type="integer">
+			<generator strategy="IDENTITY"/>
+		</id>
+		<field name="content" type="text"/>
+		<field name="ts" type="datetime"/>
+		<field name="cycle" type="integer"/>
+		<field name="translate" type="boolean"/>
+		<field name="depth" type="smallint"/>
+
+		<many-to-one field="sender" target-entity="User" inversed-by="sent_messages"/>
+		<many-to-one field="conversation" target-entity="Conversation" inversed-by="messages"/>
+
+		<one-to-many field="metadata" target-entity="MessageMetadata" mapped-by="message"/>
+		<one-to-many field="related_messages" target-entity="MessageRelation" mapped-by="source"/>
+		<one-to-many field="related_to_me" target-entity="MessageRelation" mapped-by="target"/>
+
+	</entity>
+</doctrine-mapping>

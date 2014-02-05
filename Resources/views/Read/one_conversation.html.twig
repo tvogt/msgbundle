@@ -1,0 +1,9 @@
+<div class="cmsg_conversation">
+	<h3>{{ conversation.topic }}</h3>
+	{% for conv in conversation.children %}
+		{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":conv} only %}
+	{% endfor %}
+	{% for msg in conversation.messages %}
+		{% include "MsgBundle:read:one_message.html.twig" with {"message":msg} only %}
+	{% endfor %}
+</div>

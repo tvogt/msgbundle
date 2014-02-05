@@ -1,0 +1,30 @@
+summary:
+ title:		Messages Summary
+ new:			You have %messages% new messages in %conversations% conversations.
+ nonew:		You have no new messages.
+
+conversation:
+ title:		Conversation
+ new:
+  title:		New Conversation
+ topic:
+  label:		Topic
+ parent:
+  label:		sub-topic of...
+  empty:		(nothing)
+ nearby:
+  label:		characters in the vicinity that you can contact
+ recipients:
+  label:		existing contacts that you can include
+ create:		create new conversation
+
+message:
+ content:
+  label:		Content
+ reply:
+  title:		Reply to Message
+  submit:	send reply
+
+
+error:
+ noaccess:			No access rights to this information.

@@ -77,6 +77,7 @@ class ReadController extends Controller {
 			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'));
 		}
 
+		// TODO: modify the counter on the conversation now that we're showing the messages... - but for that we might have to know not only how many, but also which messages are unread...
 		$data = $this->get('message_manager')->getConversation($meta);
 
 		return array('data' => $data);
@@ -108,6 +109,8 @@ class ReadController extends Controller {
 				$messages->add($rel->getTarget());
 			}
 		}
+
+		// TODO: modify the counter on the conversation now that we're showing the messages... - but for that we might have to know not only how many, but also which messages are unread...
 
 		return array('messages' => $messages, 'hide' => $source);
 	}

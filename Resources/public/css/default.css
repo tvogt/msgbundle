@@ -2,6 +2,7 @@
 .cmsg_conversation {
 	background-color: rgba(0,0,0,0.2);
 	padding: 0.1em 2em;
+	margin-bottom: 1em;
 }
 
 .cmsg_message {

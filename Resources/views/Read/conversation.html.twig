@@ -3,6 +3,8 @@
 {% block content %}
 <h2>{{ 'conversation.title'|trans({}, "MsgBundle")|title }}</h2>
 
+<button id="topicreply">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
+
 {% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":data[0]} %}
 
 
@@ -18,21 +20,37 @@ $("#replydialog").dialog({
 	width: "50%",
 	position: { my: "center top", at: "center bottom", of: $("#symfony-header") }
 });
+
+$("#topicreply").click(function(){
+	replyform("{{ 'conversation.reply.title'|trans({}, "MsgBundle")|title }}", {{ meta.id }}, 0);
+});
+
 $(".cmsg_conversation").on("click", "button.reply", function(){
 	var id = $(this).closest('.cmsg_message').data('id');
-	console.log(id);
-
-	$("#replydialog").dialog("open");	
-	$("#message_reply_conversation").val(0);
-	$("#message_reply_reply_to").val(id);
-
-	$("#replydialog form").attr('action', '{{ path('cmsg_reply') }}');
+	replyform("{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}", {{ meta.id }}, id);
 });
+
+$(".cmsg_conversation").on("click", "button.split", function(){
+	var id = $(this).closest('.cmsg_message').data('id');
+	replyform("{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}", 0, id);
+	$("#message_reply_topic").parent().show();
+	$("#message_reply_topic").attr("required", "required");
+});
+
+function replyform(title, conversation, reply_to) {
+	$("#replydialog").dialog("option", "title", title);
+	$("#message_reply_topic").parent().hide();
+	$("#replydialog").dialog("open");
+	$("#message_reply_conversation").val(conversation);
+	$("#message_reply_reply_to").val(reply_to);
+
+	$("#replydialog form").attr('action', '{{ path('cmsg_reply') }}');	
+}
+
 
 var request;
 var target;
 $(".cmsg_conversation").on("click", "button.show", function(){
-	console.log("show...");
 	var id = $(this).closest('.cmsg_message').data('id');
 	var type = $(this).data('type');
 
@@ -51,11 +69,13 @@ $(".cmsg_conversation").on("click", "button.show", function(){
 
 	// callback handler that will be called on success
 	request.done(function (response, textStatus, jqXHR){
+console.log("success");
 		target.html(response);
 	});
 
 	// callback handler that will be called on failure
 	request.fail(function (jqXHR, textStatus, errorThrown){
+console.log("fail");
 		target.html(textStatus);
 	});
 });

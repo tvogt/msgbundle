@@ -80,7 +80,10 @@ class ReadController extends Controller {
 		// TODO: modify the counter on the conversation now that we're showing the messages... - but for that we might have to know not only how many, but also which messages are unread...
 		$data = $this->get('message_manager')->getConversation($meta);
 
-		return array('data' => $data);
+		// flush to update our read status
+		$this->getDoctrine()->getManager()->flush();
+
+		return array('meta' => $meta, 'data' => $data);
 	}
 
 

@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 use BM2\SiteBundle\Service\AppState;
@@ -69,7 +70,6 @@ class MessageManager {
 		return $query->getResult();
 	}
 
-
 	public function getConversation(ConversationMetadata $m) {
 		$qb = $this->em->createQueryBuilder();
 		$qb->select('c, msg, meta')
@@ -91,6 +91,9 @@ class MessageManager {
 		}
 		$qb->orderBy('msg.ts', 'DESC');
 		$query = $qb->getQuery();
+
+		// set read status
+		$m->setUnread(0)->setLastRead(new \DateTime("now"));
 
 		return $query->getResult();
 	}
@@ -134,8 +137,8 @@ class MessageManager {
 		}
 
 		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);
-
 		$this->em->flush();
+		return $message;
 	}
 
 	public function writeMessage(Conversation $conversation, User $author, $content, $depth=0, $translate=false) {
@@ -167,6 +170,33 @@ class MessageManager {
 		$rel->setSource($source);
 		$rel->setTarget($msg);
 		$this->em->persist($rel);
+
+		return $msg;
+	}
+
+	public function writeSplit(Message $source, User $author, $topic, $content, $translate=false) {
+		// set our recipients to be identical to the ones of the old conversation
+		$recipients = new ArrayCollection;
+		foreach ($source->getConversation()->getMetadata() as $m) {
+			if ($m->getUser() != $user) {
+				$recipients->add($m->getUser());
+			}
+		}
+
+		$msg = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
+
+		$rel = new MessageRelation;
+		$rel->setType('response');
+		$rel->setSource($source);
+		$rel->setTarget($msg);
+		$this->em->persist($rel);
+
+		return $msg;
+	}
+
+
+	public function addMessage(Conversation $conversation, User $author, $content, $translate=false) {
+		$msg = $this->writeMessage($conversation, $author, $content, 0, $translate);
 
 		return $msg;
 	}

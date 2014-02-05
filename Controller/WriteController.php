@@ -75,10 +75,41 @@ class WriteController extends Controller {
 			$data = $form->getData();
 			$em = $this->getDoctrine()->getManager();
 
+			// TODO: check for permissions 
+
 			$source = $em->getRepository('MsgBundle:Message')->find($data['reply_to']);
-			$message = $this->get('message_manager')->writeReply($source, $user, $data['content']);
+			if ($source) {
+				if ($data['conversation']>0) {
+					// reply
+					$message = $this->get('message_manager')->writeReply($source, $user, $data['content']);
+				} else {
+					// split-reply
+					if (isset($data['topic']) && $data['topic']!="") {
+						$topic = $data['topic'];
+					} else {
+						// no topic given so we increment the last one
+						preg_match("/(.*) ([0-9]+)$/", $source->getConversation()->getTopic(), $matches);
+						if ($matches) {
+							$nr = intval($matches[2])+1;
+							$topic = $matches[1]+" $nr";
+						} else {
+							$topic = $source->getConversation()->getTopic()." 2";
+						}
+
+					}
+					// create the split
+					$message = $this->get('message_manager')->writeSplit($source, $user, $topic, $data['content']);
+				}
+			} else {
+				$meta = $em->getRepository('MsgBundle:ConversationMetadata')->find($data['conversation']);
+				if ($meta->getUser() == $user) {
+					$message = $this->get('message_manager')->addMessage($meta->getConversation(), $user, $data['content']);
+				} else {
+					// TODO: error message
+				}
+			}
 			$em->flush();
-			return $this->redirect($this->get('router')->generate('cmsg_summary'));
+			return array('message' => $message);
 		}
 
 		return array(

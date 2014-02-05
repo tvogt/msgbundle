@@ -1,7 +1,20 @@
 <div class="cmsg_conversation">
 	<h3>{{ conversation.topic }}</h3>
+	{% if conversation.parent %}
+		parent conversation: 
+		{% set topmeta = conversation.parent.findmeta(meta.user) %}
+		<a href="{{ path('cmsg_conversation', {'meta':topmeta.id}) }}">{{ conversation.parent.topic }}</a> ({{ topmeta.unread }} new messages)
+	{% endif %}
+	<ul>
 	{% for conv in conversation.children %}
-		{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":conv} only %}
+		{% if inlineview is defined %}
+			{# define the above variable if you want sub-conversations to be included in a conversation #}
+			{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":conv} only %}
+		{% else %}
+			{% set submeta = conv.findmeta(meta.user) %}
+			<li><a href="{{ path('cmsg_conversation', {'meta':submeta.id}) }}">{{ conv.topic }}</a> ({{ submeta.unread }} new messages)</li>
+		{% endif %}
+	<ul>
 	{% endfor %}
 	{% for msg in conversation.messages %}
 		{% include "MsgBundle:read:one_message.html.twig" with {"message":msg} only %}

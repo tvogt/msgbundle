@@ -3,10 +3,16 @@ summary:
  new:			You have %messages% new messages in %conversations% conversations.
  nonew:		You have no new messages.
 
+unread:
+ title:		Your Unread Messages
+
 conversation:
  title:		Conversation
  new:
   title:		New Conversation
+ reply:
+  title:		New Conversation Message
+  label:		add a message
  topic:
   label:		Topic
  parent:

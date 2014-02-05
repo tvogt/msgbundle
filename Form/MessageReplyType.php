@@ -22,6 +22,12 @@ class MessageReplyType extends AbstractType {
 	}
 
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		$builder->add('topic', 'text', array(
+			'required' => false,
+			'label' => 'conversation.topic.label',
+			'attr' => array('size'=>40, 'maxlength'=>80)
+		));
+
 		$builder->add('content', 'textarea', array(
 			'label' => 'message.content.label',
 			'trim' => true,

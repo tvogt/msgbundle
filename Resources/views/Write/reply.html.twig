@@ -1,1 +1,5 @@
-{{ form(form) }}
+{% if message is defined %}
+	{% include "MsgBundle:read:one_message.html.twig" with {"message":message} only %}
+{% else %}
+	{{ form(form) }}
+{% endif %}

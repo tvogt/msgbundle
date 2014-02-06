@@ -71,6 +71,7 @@ class MessageManager {
 	}
 
 	public function getConversation(ConversationMetadata $m) {
+		// TODO: check if this works for multiple periods (I think it will)
 		$qb = $this->em->createQueryBuilder();
 		$qb->select('c, msg, meta')
 			->from('MsgBundle:Conversation', 'c')
@@ -78,7 +79,10 @@ class MessageManager {
 			->join('c.messages', 'msg')
 			->leftJoin('msg.metadata', 'meta')
 			->where('m = :m')->setParameter('m', $m)
-			->andWhere('msg.depth = 0')
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->eq('msg.depth', 0),
+				$qb->expr()->gt('msg.ts', 'm.last_read')
+			))
 			->andWhere($qb->expr()->orX(
 				$qb->expr()->eq('meta.user', 'm.user'),
 				$qb->expr()->isNull('meta')

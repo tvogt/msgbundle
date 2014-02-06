@@ -3,10 +3,7 @@
 {% block content %}
 <h2>{{ 'conversation.title'|trans({}, "MsgBundle")|title }}</h2>
 
-<button id="topicreply">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
-
 {% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":data[0]} %}
-
 
 <div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
 	{{ render(controller('MsgBundle:Write:reply')) }}
@@ -21,8 +18,9 @@ $("#replydialog").dialog({
 	position: { my: "center top", at: "center bottom", of: $("#symfony-header") }
 });
 
-$("#topicreply").click(function(){
-	replyform("{{ 'conversation.reply.title'|trans({}, "MsgBundle")|title }}", {{ meta.id }}, 0);
+$(".cmsg_conversation").on("click", "button.topicreply", function(){
+	var id = $(this).data('id');
+	replyform("{{ 'conversation.reply.title'|trans({}, "MsgBundle")|title }}", id, 0);
 });
 
 $(".cmsg_conversation").on("click", "button.reply", function(){

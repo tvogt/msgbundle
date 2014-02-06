@@ -18,11 +18,19 @@ conversation:
  parent:
   label:		sub-topic of...
   empty:		(nothing)
+  reference: parent conversation: 
+ child:
+  reference: sub-topics to this:
  nearby:
   label:		characters in the vicinity that you can contact
  recipients:
   label:		existing contacts that you can include
  create:		create new conversation
+ messages:  %total% messages, %unread% unread
+ invite:
+  label:    invite others
+ manage:
+  label:    manage conversation
 
 message:
  content:

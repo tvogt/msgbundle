@@ -1,22 +1,40 @@
 <div class="cmsg_conversation">
+
 	<h3>{{ conversation.topic }}</h3>
+
+	<div class="cmsg_general">
+		<button class="topicreply" data-id="{{ conversation.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
+
+		{# TODO: need my meta data here to check if I can invite and manage participants! #}
+		<button class="invite" data-id="{{ conversation.id }}">{{ 'conversation.invite.label'|trans({}, "MsgBundle")|title }}</button>
+		<button class="manage" data-id="{{ conversation.id }}">{{ 'conversation.manage.label'|trans({}, "MsgBundle")|title }}</button>
+	</div>
+
 	{% if conversation.parent %}
-		parent conversation: 
+		{{ 'conversation.parent.reference'|trans({}, "MsgBundle") }}
 		{% set topmeta = conversation.parent.findmeta(meta.user) %}
-		<a href="{{ path('cmsg_conversation', {'meta':topmeta.id}) }}">{{ conversation.parent.topic }}</a> ({{ topmeta.unread }} new messages)
+		<a href="{{ path('cmsg_conversation', {'meta':topmeta.id}) }}">{{ conversation.parent.topic }}</a> ({{ 'conversation.messages'|trans({'%total%':conversation.parent.messages.count, '%unread%':topmeta.unread}, "MsgBundle") }})
 	{% endif %}
-	<ul>
-	{% for conv in conversation.children %}
+
+	{% if conversation.children is not empty %}
 		{% if inlineview is defined %}
-			{# define the above variable if you want sub-conversations to be included in a conversation #}
-			{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":conv} only %}
+			{% for conv in conversation.children %}
+				{# define the above variable if you want sub-conversations to be included in a conversation #}
+				{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":conv} only %}
+			{% endfor %}
 		{% else %}
-			{% set submeta = conv.findmeta(meta.user) %}
-			<li><a href="{{ path('cmsg_conversation', {'meta':submeta.id}) }}">{{ conv.topic }}</a> ({{ submeta.unread }} new messages)</li>
+			{{ 'conversation.child.reference'|trans({}, "MsgBundle") }}
+			
+			<ul>
+			{% for conv in conversation.children %}
+				{% set submeta = conv.findmeta(meta.user) %}
+				<li><a href="{{ path('cmsg_conversation', {'meta':submeta.id}) }}">{{ conv.topic }}</a> ({{ 'conversation.messages'|trans({'%total%':conv.messages.count, '%unread%':submeta.unread}, "MsgBundle") }})
+			{% endfor %}
+			</ul>
 		{% endif %}
-	<ul>
-	{% endfor %}
+	{% endif %}
 	{% for msg in conversation.messages %}
+		{# TODO: display read messages (ts < meta.last_read) differently #}
 		{% include "MsgBundle:read:one_message.html.twig" with {"message":msg} only %}
 	{% endfor %}
 </div>

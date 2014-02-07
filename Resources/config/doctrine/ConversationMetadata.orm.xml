@@ -6,14 +6,18 @@
 		</id>
 		<field name='unread' type='smallint'/>
 		<field name="last_read" type="datetime" nullable="true"/>
-		<field name="access_from" type="datetime" nullable="true"/>
-		<field name="access_until" type="datetime" nullable="true"/>
 
 		<many-to-one field="conversation" target-entity="Conversation" inversed-by="metadata"/>
 		<many-to-one field="user" target-entity="User" inversed-by="conversations_metadata" />
 
+		<one-to-many field="timespan" target-entity="Timespan" mapped-by="metadata"/>
+
 		<many-to-many field="flags" target-entity="Flag"/>
 		<many-to-many field="rights" target-entity="Right"/>
+
+		<unique-constraints>
+			<unique-constraint columns="conversation_id,user_id" name="access_idx" />
+		</unique-constraints>
 
 	</entity>
 </doctrine-mapping>

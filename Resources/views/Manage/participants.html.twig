@@ -1,0 +1,32 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'participants.title'|trans({}, "MsgBundle")|title }}</h2>
+
+<table>
+	<thead>
+		<tr>
+			<th></th>
+			{% for right in rights %}
+				<th>{{ ('right.'~right.name)|trans({}, "MsgBundle") }}</th>
+			{% endfor %}			
+		</tr>
+	</thead>
+	<tbody>
+	{% for meta in metas %}
+		<tr>
+			<td>{{ link(meta.user.appuser) }}</td>
+			{% for right in rights %}
+				{% if meta.hasright(right) %}
+					<td class="cmsg_on">yes
+				{% else %}
+					<td class="cmsg_off">no
+				{% endif %}
+				</td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

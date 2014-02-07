@@ -1,3 +1,12 @@
+index:
+ title:     Conversations Overview
+ topic:     topic
+ messages:  messages
+ unread:    unread
+ first:     first message
+ last:      last message
+ msg:       by %sender% on %on%
+
 summary:
  title:		Messages Summary
  new:			You have %messages% new messages in %conversations% conversations.
@@ -27,18 +36,25 @@ conversation:
   label:		existing contacts that you can include
  create:		create new conversation
  messages:  %total% messages, %unread% unread
- invite:
-  label:    invite others
- manage:
-  label:    manage conversation
+ participants:
+  label:    participants
 
 message:
  content:
   label:		Content
  reply:
   title:		Reply to Message
-  submit:	send reply
+  submit:	  send reply
 
+participants:
+ title:     Conversation Participants
+
+right:
+ owner:                 owner
+ participants_add:      add
+ participants_remove:   remove
+ participants_edit:     edit
+ write:                 write
 
 error:
  noaccess:			No access rights to this information.

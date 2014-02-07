@@ -6,8 +6,7 @@
 		<button class="topicreply" data-id="{{ conversation.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
 
 		{# TODO: need my meta data here to check if I can invite and manage participants! #}
-		<button class="invite" data-id="{{ conversation.id }}">{{ 'conversation.invite.label'|trans({}, "MsgBundle")|title }}</button>
-		<button class="manage" data-id="{{ conversation.id }}">{{ 'conversation.manage.label'|trans({}, "MsgBundle")|title }}</button>
+		<a href="{{ path('cmsg_participants', {'conversation':conversation.id}) }}">{{ 'conversation.participants.label'|trans({}, "MsgBundle") }}</a>
 	</div>
 
 	{% if conversation.parent %}

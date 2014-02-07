@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping>
+	<entity name="Calitarus\MessagingBundle\Entity\Timespan" table="cmsg_timespan">
+		<id name="id" type="integer">
+			<generator strategy="IDENTITY"/>
+		</id>
+		<field name="access_from" type="datetime" nullable="true"/>
+		<field name="access_until" type="datetime" nullable="true"/>
+
+		<many-to-one field="metadata" target-entity="ConversationMetadata" inversed-by="timespan"/>
+
+	</entity>
+</doctrine-mapping>
+

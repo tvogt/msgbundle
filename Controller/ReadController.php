@@ -21,6 +21,16 @@ use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 class ReadController extends Controller {
 
 	/**
+		* @Route("/", name="cmsg_index")
+		* @Template
+		*/
+	public function indexAction() {
+		$user = $this->get('message_manager')->getCurrentUser();
+
+		return array('conversations' => $user->getConversationsMetadata());
+	}
+
+	/**
 		* @Route("/summary", name="cmsg_summary")
 		* @Template
 		*/

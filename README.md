@@ -12,6 +12,7 @@ Features
 * Two-way references between messages
 * Flags, tags and scores
 * Permission system
+* time-based access controls (join a conversation and see all posts or only those posted after you join, leave a conversation and you retain access to the old messages you could see while you were part of it)
 
 
 Vision

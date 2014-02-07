@@ -87,12 +87,23 @@ class MessageManager {
 				$qb->expr()->eq('meta.user', 'm.user'),
 				$qb->expr()->isNull('meta')
 			));
-		if ($m->getAccessFrom()) {
-			$qb->andWhere($qb->expr()->gt('msg.ts', 'm.access_from'));
-		}
-		if ($m->getAccessUntil()) {
-			$qb->andWhere($qb->expr()->lt('msg.ts', 'm.access_until'));
-		}
+
+		// add time-based restriction:
+		$qb->leftJoin('m.timespan', 't')
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('t'),
+				$qb->expr()->andX(
+					$qb->expr()->orX(
+						$qb->expr()->isNull('t.access_from'),
+						$qb->expr()->gte('msg.ts', 't.access_from')
+					),
+					$qb->expr()->orX(
+						$qb->expr()->isNull('t.access_until'),
+						$qb->expr()->lte('msg.ts', 't.access_until')
+					)
+				)
+			));
+
 		$qb->orderBy('msg.ts', 'DESC');
 		$query = $qb->getQuery();
 
@@ -132,12 +143,14 @@ class MessageManager {
 		$conversation = $this->createConversation($creator, $topic, $parent);
 
 		foreach ($recipients as $recipient) {
-			$meta = new ConversationMetadata;
-			$meta->setUnread(0);
-			$meta->setConversation($conversation);
-			$meta->setUser($recipient);
-			$conversation->addMetadata($meta);
-			$this->em->persist($meta);
+			if ($recipient != $creator) { // because he has already been added above
+				$meta = new ConversationMetadata;
+				$meta->setUnread(0);
+				$meta->setConversation($conversation);
+				$meta->setUser($recipient);
+				$conversation->addMetadata($meta);
+				$this->em->persist($meta);
+			}
 		}
 
 		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);

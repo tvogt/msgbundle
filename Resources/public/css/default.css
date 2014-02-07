@@ -101,6 +101,13 @@ ul.cmsg_actions {
 	background: rgba(255,255,255,0.75);
 }
 
+.cmsg_on {
+	background: rgba(0,240,0,0.5);
+}
+.cmsg_off {
+	background: rgba(200,200,200,0.5);
+}
+
 #message_reply label {
 	display: block;
 }
@@ -108,3 +115,5 @@ ul.cmsg_actions {
 #message_reply textarea {
 	width: 100%;
 }
+
+

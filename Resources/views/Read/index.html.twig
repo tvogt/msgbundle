@@ -1,0 +1,37 @@
+{% extends "MsgBundle::layout.html.twig" %}
+
+{% block content %}
+<h2>{{ 'index.title'|trans({}, "MsgBundle")|title }}</h2>
+
+{# TODO: show hierarchy... #}
+
+<table class="cmsg_table">
+	<thead>
+		<tr>
+			<th>{{ 'index.topic'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.messages'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for meta in conversations %}
+		<tr>
+			<td><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a></td>
+			<td align="right">{{ meta.conversation.messages.count }}</td>
+			<td align="center">
+				{% set msg = meta.conversation.messages.first %}
+				{{ 'index.msg'|trans({"%sender%":msg.sender.name, "%on%":msg.ts|date}, "MsgBundle") }}
+			</td>
+			<td align="center">
+				{% set msg = meta.conversation.messages.last %}
+				{{ 'index.msg'|trans({"%sender%":msg.sender.name, "%on%":msg.ts|date}, "MsgBundle") }}
+			</td>
+			<td align="right">{{ meta.unread }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

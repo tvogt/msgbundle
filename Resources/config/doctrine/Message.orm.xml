@@ -13,7 +13,7 @@
 		<many-to-one field="sender" target-entity="User" inversed-by="sent_messages"/>
 		<many-to-one field="conversation" target-entity="Conversation" inversed-by="messages"/>
 
-		<one-to-many field="metadata" target-entity="MessageMetadata" mapped-by="message"/>
+		<one-to-many field="metadata" target-entity="MessageMetadata" mapped-by="message" on-delete="CASCADE"/>
 		<one-to-many field="related_messages" target-entity="MessageRelation" mapped-by="source"/>
 		<one-to-many field="related_to_me" target-entity="MessageRelation" mapped-by="target"/>
 

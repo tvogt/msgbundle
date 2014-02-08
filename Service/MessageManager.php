@@ -113,6 +113,41 @@ class MessageManager {
 		return $query->getResult();
 	}
 
+	public function getToplevelConversationsMeta(User $user=null) {
+		if (!$user) { $user=$this->getCurrentUser(); }
+
+		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL');
+		$query->setParameter('me', $user);
+		return $query->getResult();
+	}
+
+
+	public function leaveConversation(ConversationMetadata $meta, User $user, $ids=array()) {
+		$ids[] = $meta->getId();
+
+		$conversation = $meta->getConversation();
+		foreach ($conversation->getChildren() as $child) {
+			$meta = $child->findMeta($user);
+			$ids = $this->leaveConversation($meta, $user, $ids);
+		}
+
+		// leaving is simply removing all my metadata		
+		$query = $this->em->createQuery('SELECT m from MsgBundle:MessageMetadata m JOIN m.message msg WHERE m.user = :me AND msg.conversation = :conversation');
+		$query->setParameters(array('me'=>$user, 'conversation'=>$conversation));
+		foreach ($query->getResult() as $msg_meta) {
+			$this->em->remove($msg_meta);
+		}
+		$conversation->removeMetadata($meta);
+		$this->em->remove($meta);
+
+		// if the conversation has no participants left, we can remove it:
+		if ($conversation->getMetadata()->count() == 0) {
+			// just remove the conversation, cascading should take care of all the messages and metadata
+			$this->em->remove($conversation);
+		}
+
+		return $ids;
+	}
 
 	/* creation methods */
 	

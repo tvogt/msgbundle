@@ -90,22 +90,26 @@ ul.cmsg_actions {
 	padding: 0.25em;
 }
 
-.cmsg_icon {
+button.cmsg_icon {
 	background: rgba(255,255,255,0.5);
 	border: none;
 	border-radius: 0.25em;
 	font-size: 125%;
 	padding: 0.05em 0.4em;
 }
-.cmsg_icon:hover {
+button.cmsg_icon:hover {
 	background: rgba(255,255,255,0.75);
 }
 
 .cmsg_on {
 	background: rgba(0,240,0,0.5);
+	padding: 0.1em 0.1em 0.3em 0.5em;
+	border-radius: 0.5em;
 }
 .cmsg_off {
 	background: rgba(200,200,200,0.5);
+	padding: 0.1em 0.1em 0.3em 0.5em;
+	border-radius: 0.5em;
 }
 
 #message_reply label {

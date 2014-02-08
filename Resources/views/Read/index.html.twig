@@ -1,37 +1,87 @@
 {% extends "MsgBundle::layout.html.twig" %}
 
+{% macro conversationrow(meta, depth) %}
+<tr data-id="{{ meta.id }}">
+	<td style="padding-left: {{ depth}}em">{% if depth > 0 %}<span class="icon-forward"></span>{% endif %}<a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a></td>
+	<td align="right">{{ meta.conversation.messages.count }}</td>
+	<td align="right">{{ meta.unread }}</td>
+	<td>
+		{% set msg = meta.conversation.messages.first %}
+		{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+	</td>
+	<td>
+		{% set msg = meta.conversation.messages.last %}
+		{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+	</td>
+	<td>
+		<button class="convo_leave" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+	</td>
+</tr>
+{% for conv in meta.conversation.children %}
+	{% set submeta = conv.findmeta(meta.user) %}
+	{% if submeta %}
+		{{ _self.conversationrow(submeta, depth+1) }}
+	{% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% import _self as macros %}
+
 {% block content %}
 <h2>{{ 'index.title'|trans({}, "MsgBundle")|title }}</h2>
 
-{# TODO: show hierarchy... #}
+<div id="ajax_errors"></div>
 
 <table class="cmsg_table">
 	<thead>
 		<tr>
 			<th>{{ 'index.topic'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.messages'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
 		</tr>
 	</thead>
 	<tbody>
-		{% for meta in conversations %}
-		<tr>
-			<td><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a></td>
-			<td align="right">{{ meta.conversation.messages.count }}</td>
-			<td align="center">
-				{% set msg = meta.conversation.messages.first %}
-				{{ 'index.msg'|trans({"%sender%":msg.sender.name, "%on%":msg.ts|date}, "MsgBundle") }}
-			</td>
-			<td align="center">
-				{% set msg = meta.conversation.messages.last %}
-				{{ 'index.msg'|trans({"%sender%":msg.sender.name, "%on%":msg.ts|date}, "MsgBundle") }}
-			</td>
-			<td align="right">{{ meta.unread }}</td>
-		</tr>
+		{% for metadata in conversations %}
+			{{ macros.conversationrow(metadata, 0) }}
 		{% endfor %}
 	</tbody>
 </table>
 
 {% endblock %}
+
+{% block jquery %}
+var request;
+$("button.convo_leave").click(function(){
+	var id = $(this).closest("tr").data('id');
+
+	// abort any pending request
+	if (request) {
+		request.abort();
+	}
+
+	var target = $(this).parent();
+	// fire off the request
+	request = $.ajax({
+		url: "{{ path('cmsg_leave') }}",
+		type: "post",
+		data: { 'id': id },
+	});
+
+	// callback handler that will be called on success
+	request.done(function (response, textStatus, jqXHR){
+		for (var key in response) {
+			$('tr[data-id="'+response[key]+'"]').remove();
+		}
+	});
+
+	// callback handler that will be called on failure
+	request.fail(function (jqXHR, textStatus, errorThrown){
+		$("#ajax_errors").html(textStatus);
+	});
+
+});
+{% endblock %}
+
+

@@ -57,6 +57,7 @@ class NewConversationType extends AbstractType {
 		$me = $this->character;
 		$maxdistance = $this->distance;
 
+		// Might & Fealty: contact nearby characters
 		$builder->add('nearby', 'entity', array(
 			'required' => false,
 			'multiple'=>true,

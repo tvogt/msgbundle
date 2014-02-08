@@ -5,8 +5,9 @@
 	<div class="cmsg_general">
 		<button class="topicreply" data-id="{{ conversation.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
 
-		{# TODO: need my meta data here to check if I can invite and manage participants! #}
 		<a href="{{ path('cmsg_participants', {'conversation':conversation.id}) }}">{{ 'conversation.participants.label'|trans({}, "MsgBundle") }}</a>
+
+		{# TODO: have a button to leave the conversation here as well, but that can't be done easily by ajax, so... #}
 	</div>
 
 	{% if conversation.parent %}

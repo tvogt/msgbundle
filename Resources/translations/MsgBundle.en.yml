@@ -1,5 +1,5 @@
 index:
- title:     Conversations Overview
+ title:     conversations overview
  topic:     topic
  messages:  messages
  unread:    unread
@@ -8,17 +8,22 @@ index:
  msg:       by %sender% on %on%
 
 summary:
- title:		Messages Summary
+ title:		messages summary
  new:			You have %messages% new messages in %conversations% conversations.
  nonew:		You have no new messages.
+ total:   You are participating in a total of %conversations% conversations.
+ nototal: You are not participating in any conversations currently.
 
 unread:
- title:		Your Unread Messages
+ title:		your unread messages
+ short:   unread messages
 
 conversation:
- title:		Conversation
+ title:		  Conversation
  new:
-  title:		New Conversation
+  title:		new conversation
+  label:    create a new conversation
+  desc:     start a new topic and invite participants
  reply:
   title:		New Conversation Message
   label:		add a message
@@ -38,6 +43,9 @@ conversation:
  messages:  %total% messages, %unread% unread
  participants:
   label:    participants
+ leave:
+  label:    leave conversation
+  help:     remove yourself from this conversation and all sub-topics it might have.
 
 message:
  content:

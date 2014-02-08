@@ -25,9 +25,9 @@ class ReadController extends Controller {
 		* @Template
 		*/
 	public function indexAction() {
-		$user = $this->get('message_manager')->getCurrentUser();
+		$metas = $this->get('message_manager')->getToplevelConversationsMeta();
 
-		return array('conversations' => $user->getConversationsMetadata());
+		return array('conversations' => $metas);
 	}
 
 	/**
@@ -37,15 +37,20 @@ class ReadController extends Controller {
 	public function summaryAction() {
 		$user = $this->get('message_manager')->getCurrentUser();
 
+		$total = 0;
 		$new = array('messages' => 0, 'conversations' => 0);
 		foreach ($user->getConversationsMetadata() as $meta) {
+			$total++;
 			if ($meta->getUnread() > 0) {
 				$new['messages'] += $meta->getUnread();
 				$new['conversations']++;
 			}
 		}
 
-		return array('new' => $new);
+		return array(
+			'total' => $total,
+			'new' => $new
+		);
 	}
 
 

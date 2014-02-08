@@ -1,7 +1,6 @@
 <div class="cmsg_message" data-id="{{ message.id }}">
 	<div class="cmsg_message_meta">
-		by {{ message.sender.name }}
-		on {{ message.ts|date }}
+		{{ 'index.msg'|trans({"%sender%":link(message.sender.appuser), "%on%":message.ts|date}, "MsgBundle")|raw }}
 	</div>
 	{% if hide is defined %}
 		{% set related_messages = message.relatedtomeexcept(hide) %}

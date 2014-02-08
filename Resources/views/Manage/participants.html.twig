@@ -16,11 +16,13 @@
 	{% for meta in metas %}
 		<tr>
 			<td>{{ link(meta.user.appuser) }}</td>
+			{# TODO: how to display timespans? we could theoretically have a lot of them... #}
 			{% for right in rights %}
+				<td align="center">
 				{% if meta.hasright(right) %}
-					<td class="cmsg_on">yes
+					<span class="cmsg_on icon-checkmark">&nbsp;</span>
 				{% else %}
-					<td class="cmsg_off">no
+					<span class="cmsg_off icon-blocked">&nbsp;</span>
 				{% endif %}
 				</td>
 			{% endfor %}

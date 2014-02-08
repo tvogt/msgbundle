@@ -4,6 +4,7 @@ namespace Calitarus\MessagingBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -13,6 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 
 use Calitarus\MessagingBundle\Entity\Conversation;
+use Calitarus\MessagingBundle\Entity\ConversationMetadata;
+use Calitarus\MessagingBundle\Entity\User;
 
 
 /**
@@ -39,6 +42,26 @@ class ManageController extends Controller {
 		$rights = $em->getRepository('MsgBundle:Right')->findAll();
 
 		return array('metas'=>$metas, 'rights'=>$rights);
+	}
+
+	/**
+		* @Route("/conversation/leave", name="cmsg_leave", defaults={"_format"="json"})
+		*/
+	public function leaveAction(Request $request) {
+		$user = $this->get('message_manager')->getCurrentUser();
+
+		$id = $request->request->get('id');
+
+		$meta = $this->getDoctrine()->getManager()->getRepository('MsgBundle:ConversationMetadata')->find($id);
+		if (!$meta || $meta->getUser() != $user) {
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'));
+		}
+
+		$convos =  $this->get('message_manager')->leaveConversation($meta, $user);
+
+		$this->getDoctrine()->getManager()->flush();
+		
+		return new Response(json_encode($convos));
 	}
 
 }

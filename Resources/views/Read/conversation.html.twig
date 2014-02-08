@@ -67,13 +67,11 @@ $(".cmsg_conversation").on("click", "button.show", function(){
 
 	// callback handler that will be called on success
 	request.done(function (response, textStatus, jqXHR){
-console.log("success");
 		target.html(response);
 	});
 
 	// callback handler that will be called on failure
 	request.fail(function (jqXHR, textStatus, errorThrown){
-console.log("fail");
 		target.html(textStatus);
 	});
 });

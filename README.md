@@ -43,7 +43,7 @@ For keyword search or any other purpose the user can think of, he can add tags i
 ### Permissions ###
 Conversations are supported by a permission system, where the owner/creator of a conversation (who automatically has all permissions) can assign permissions to other participants. The default set of permissions are:
 
-* owner - can do anything (this is a permission so a conversation can have multiple owners)
+* owner - can do anything, and is protected from other people editing or removing him (this is a permission so a conversation can have multiple owners)
 * participants
   * add - add participants to this conversation
   * remove - remove participants from this conversation

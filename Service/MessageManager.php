@@ -149,6 +149,35 @@ class MessageManager {
 		return $ids;
 	}
 
+	// this method is intended for things like a user deleting, etc.
+	public function leaveAllConversations(User $user) {
+		$query = $this->em->createQuery('DELETE FROM MsgBundle:MessageMetadata m WHERE m.user = :me');
+		$query->setParameter('me', $user);
+		$query->execute();
+
+		$query = $this->em->createQuery('DELETE FROM MsgBundle:ConversationMetadata c WHERE c.user = :me');
+		$query->setParameter('me', $user);
+		$query->execute();
+
+		$this->em->flush();
+
+		$this->removeAbandonedConversations();
+	}
+
+	public function removeAbandonedConversations() {
+		$query = $this->em->createQuery('SELECT c,count(m) as participants FROM MsgBundle:Conversation c LEFT JOIN c.metadata m GROUP BY c');
+		$results = $query->getResult();
+
+		foreach ($results as $row) {
+			if ($row['participants'] == 0) {
+				$this->em->remove($row[0]);
+			}
+		}
+		$this->em->flush();
+	}
+
+
+
 	/* creation methods */
 	
 	public function createConversation(User $creator, $topic, Conversation $parent=null) {

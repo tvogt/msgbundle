@@ -66,3 +66,5 @@ right:
 
 error:
  noaccess:			No access rights to this information.
+ conversation:
+  noaccess:     You do not have access to this conversation.

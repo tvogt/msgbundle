@@ -13,5 +13,7 @@
 
 		<one-to-many field="metadata" target-entity="ConversationMetadata" mapped-by="conversation" on-delete="CASCADE"/>
 
+		<many-to-one field="app_reference" target-entity="BM2\SiteBundle\Entity\Realm"/>
+
 	</entity>
 </doctrine-mapping>

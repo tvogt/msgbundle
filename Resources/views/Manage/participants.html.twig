@@ -26,6 +26,18 @@
 				{% endif %}
 				</td>
 			{% endfor %}
+			<td><ul class="simple">
+			{% for span in meta.timespans %}
+				<li>
+					{% if span.accessfrom %}
+						from {{ span.accessfrom|date }}
+					{% endif %}
+					{% if span.accessuntil %}
+						until {{ span.accessuntil|date }}
+					{% endif %}
+				</li>
+			{% endfor %}
+			</ul></td>
 		</tr>
 	{% endfor %}
 	</tbody>

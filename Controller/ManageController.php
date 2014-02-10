@@ -30,10 +30,21 @@ class ManageController extends Controller {
 	public function participantsAction(Conversation $conversation) {
 		$user = $this->get('message_manager')->getCurrentUser();
 
-		// TODO
 		$meta = $conversation->findMeta($user);
 		if (!$meta) {
-			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+		}
+
+		if ($meta->getTimespans()) {
+			$current = false;
+			foreach ($meta->getTimespans() as $span) {
+				if (!$span->getAccessUntil()) {
+					$current = true;
+				}
+			}
+			if (!$current) {
+				throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			}
 		}
 
 		$metas = $conversation->getMetadata();
@@ -54,7 +65,7 @@ class ManageController extends Controller {
 
 		$meta = $this->getDoctrine()->getManager()->getRepository('MsgBundle:ConversationMetadata')->find($id);
 		if (!$meta || $meta->getUser() != $user) {
-			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'), array(), "MsgBundle"));
 		}
 
 		$convos =  $this->get('message_manager')->leaveConversation($meta, $user);

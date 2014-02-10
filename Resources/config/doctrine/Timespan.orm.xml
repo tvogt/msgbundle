@@ -7,7 +7,7 @@
 		<field name="access_from" type="datetime" nullable="true"/>
 		<field name="access_until" type="datetime" nullable="true"/>
 
-		<many-to-one field="metadata" target-entity="ConversationMetadata" inversed-by="timespan"/>
+		<many-to-one field="metadata" target-entity="ConversationMetadata" inversed-by="timespans"/>
 
 	</entity>
 </doctrine-mapping>

@@ -90,7 +90,7 @@ class MessageManager {
 			));
 
 		// add time-based restriction:
-		$qb->leftJoin('m.timespan', 't')
+		$qb->leftJoin('m.timespans', 't')
 			->andWhere($qb->expr()->orX(
 				$qb->expr()->isNull('t'),
 				$qb->expr()->andX(
@@ -309,20 +309,73 @@ class MessageManager {
 	public function removeParticipant(Conversation $conversation, User $participant) {
 		$meta = $conversation->findMeta($participant);
 		if ($meta) {
-			if ($meta->getTimespans()) {
-				foreach ($meta->getTimespans() as $span) {
-					if (!$span->getAccessUntil()) {
-						$span->setAccessUntil(new \DateTime("now"));
-					}
-				}
-			} else {
+			// update or generate end-of-access timespan
+			if ($meta->getTimespans()->isEmpty()) {
 				$span = new Timespan;
 				$span->setMetadata($meta);
 				$span->setAccessUntil(new \DateTime("now"));
 				$meta->addTimespan($span);
 				$this->em->persist($span);
+			} else {
+				foreach ($meta->getTimespans() as $span) {
+					if (!$span->getAccessUntil()) {
+						$span->setAccessUntil(new \DateTime("now"));
+					}
+				}
+			}
+
+			// remove all rights to this conversation
+			foreach ($meta->getRights() as $right) {
+				$meta->removeRight($right);
 			}
 		}
 	}
 
+
+	public function updateMembers(Conversation $conversation) {
+		$realm = $conversation->getAppReference();
+		$added = 0;
+		$removed = 0;
+
+		if ($realm) {
+			$members = $realm->findMembers();
+
+			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
+			$query->setParameter('members', $members->toArray());
+			$users = new ArrayCollection($query->getResult());
+
+			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u JOIN u.conversations_metadata m WHERE m.conversation = :conversation');
+			$query->setParameter('conversation', $conversation);
+			$participants = new ArrayCollection($query->getResult());
+
+			foreach ($users as $user) {
+				if (!$participants->contains($user)) {
+					// this user is missing from the conversation, but should be there - add him
+					$this->addParticipant($conversation, $user);
+					$added++;
+				}
+			}
+
+			foreach ($participants as $part) {
+				if (!$users->contains($part)) {
+					// this user is in the conversation, but shouldn't - remove him
+					$this->removeParticipant($conversation, $part);
+					$removed++;
+				}
+			}
+		}
+		return array('added'=>$added, 'removed'=>$removed);
+	}
+
+
+	private function equal(User $a, User $b) {
+		echo $a->getName()." = ".$b->getName()." ?";
+		if ($a==$b) {
+			echo "true";
+		} else {
+			echo "false";
+		}
+		echo "\n";
+		return $a == $b;
+	}
 }

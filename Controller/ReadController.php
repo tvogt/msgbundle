@@ -88,11 +88,12 @@ class ReadController extends Controller {
 	public function conversationAction(ConversationMetadata $meta) {
 		$user = $this->get('message_manager')->getCurrentUser();
 
+		$this->get('message_manager')->updateMembers($meta->getConversation());
+
 		if ($meta->getUser() != $user) {
-			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'), array(), "MsgBundle"));
 		}
 
-		// TODO: modify the counter on the conversation now that we're showing the messages... - but for that we might have to know not only how many, but also which messages are unread...
 		$data = $this->get('message_manager')->getConversation($meta);
 
 		// flush to update our read status

@@ -65,7 +65,7 @@ class ManageController extends Controller {
 
 		$meta = $this->getDoctrine()->getManager()->getRepository('MsgBundle:ConversationMetadata')->find($id);
 		if (!$meta || $meta->getUser() != $user) {
-			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess'), array(), "MsgBundle"));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
 		$convos =  $this->get('message_manager')->leaveConversation($meta, $user);

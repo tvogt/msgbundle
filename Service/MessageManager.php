@@ -19,6 +19,7 @@ use Calitarus\MessagingBundle\Entity\MessageMetadata;
 use Calitarus\MessagingBundle\Entity\MessageRelation;
 use Calitarus\MessagingBundle\Entity\User;
 use Calitarus\MessagingBundle\Entity\Right;
+use Calitarus\MessagingBundle\Entity\Timespan;
 
 
 class MessageManager {
@@ -280,6 +281,48 @@ class MessageManager {
 		$msg = $this->writeMessage($conversation, $author, $content, 0, $translate);
 
 		return $msg;
+	}
+
+
+	/* management methods */
+	
+	// you might want to change $time_limit to false if you don't use it or only rarely.
+	public function addParticipant(Conversation $conversation, User $participant, $time_limit=true) {
+		$meta = new ConversationMetadata;
+		$meta->setConversation($conversation);
+		$meta->setUser($participant);
+		$conversation->addMetadata($meta);
+		$this->em->persist($meta);
+
+		if ($time_limit) {
+			$meta->setUnread(0);
+			$span = new Timespan;
+			$span->setMetadata($meta);
+			$span->setAccessFrom(new \DateTime("now"));
+			$meta->addTimespan($span);
+			$this->em->persist($span);
+		} else {
+			$meta->setUnread($conversation->getMessages()->count());
+		}
+	}
+
+	public function removeParticipant(Conversation $conversation, User $participant) {
+		$meta = $conversation->findMeta($participant);
+		if ($meta) {
+			if ($meta->getTimespans()) {
+				foreach ($meta->getTimespans() as $span) {
+					if (!$span->getAccessUntil()) {
+						$span->setAccessUntil(new \DateTime("now"));
+					}
+				}
+			} else {
+				$span = new Timespan;
+				$span->setMetadata($meta);
+				$span->setAccessUntil(new \DateTime("now"));
+				$meta->addTimespan($span);
+				$this->em->persist($span);
+			}
+		}
 	}
 
 }

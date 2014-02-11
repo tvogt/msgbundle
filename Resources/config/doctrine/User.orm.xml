@@ -5,7 +5,7 @@
 			<generator strategy="IDENTITY"/>
 		</id>
 
-		<one-to-one field="app_user" target-entity="BM2\SiteBundle\Entity\Character"/>
+		<one-to-one field="app_user" target-entity="BM2\SiteBundle\Entity\Character" inversed-by="msg_user"/>
 
 		<one-to-many field="sent_messages" target-entity="Message" mapped-by="sender" />
 		<one-to-many field="owned_groups" target-entity="Group" mapped-by="owner" />

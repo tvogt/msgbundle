@@ -3,7 +3,7 @@
 {% block content %}
 <h2>{{ 'conversation.title'|trans({}, "MsgBundle")|title }}</h2>
 
-{% include "MsgBundle:read:one_conversation.html.twig" with {"conversation":data[0]} %}
+{% include "MsgBundle:Read:one_conversation.html.twig" with {"conversation":data[0]} %}
 
 <div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
 	{{ render(controller('MsgBundle:Write:reply')) }}

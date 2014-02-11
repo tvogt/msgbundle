@@ -77,10 +77,11 @@ class MessageManager {
 		$qb->select('c, msg, meta')
 			->from('MsgBundle:Conversation', 'c')
 			->join('c.metadata', 'm')
-			->join('c.messages', 'msg')
+			->leftJoin('c.messages', 'msg')
 			->leftJoin('msg.metadata', 'meta')
 			->where('m = :m')->setParameter('m', $m)
 			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('msg'),
 				$qb->expr()->eq('msg.depth', 0),
 				$qb->expr()->gt('msg.ts', 'm.last_read')
 			))
@@ -363,6 +364,9 @@ class MessageManager {
 					$removed++;
 				}
 			}
+
+			// TODO: make sure owner and ruler are identical
+			
 		}
 		return array('added'=>$added, 'removed'=>$removed);
 	}

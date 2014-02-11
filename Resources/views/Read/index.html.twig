@@ -7,11 +7,15 @@
 	<td align="right">{{ meta.unread }}</td>
 	<td>
 		{% set msg = meta.conversation.messages.first %}
-		{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+		{% if msg %}
+			{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+		{% endif %}
 	</td>
 	<td>
 		{% set msg = meta.conversation.messages.last %}
-		{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+		{% if msg %}
+			{{ 'index.msg'|trans({"%sender%":link(msg.sender.appuser), "%on%":msg.ts|date}, "MsgBundle")|raw }}
+		{% endif %}
 	</td>
 	<td>
 		<button class="convo_leave" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>

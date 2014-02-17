@@ -24,14 +24,13 @@ use Calitarus\MessagingBundle\Entity\User;
 class ManageController extends Controller {
 
 	/**
-		* @Route("/participants/{conversation}", name="cmsg_participants", requirements={"conversation"="\d+"})
+		* @Route("/participants/{meta}", name="cmsg_participants", requirements={"meta"="\d+"})
 		* @Template
 		*/
-	public function participantsAction(Conversation $conversation) {
+	public function participantsAction(ConversationMetadata $meta) {
 		$user = $this->get('message_manager')->getCurrentUser();
 
-		$meta = $conversation->findMeta($user);
-		if (!$meta) {
+		if ($meta->getUser() != $user) {
 			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
@@ -47,7 +46,7 @@ class ManageController extends Controller {
 			}
 		}
 
-		$metas = $conversation->getMetadata();
+		$metas = $meta->getConversation()->getMetadata();
 
 		$em = $this->getDoctrine()->getManager();
 		$rights = $em->getRepository('MsgBundle:Right')->findAll();

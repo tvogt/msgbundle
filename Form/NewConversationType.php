@@ -40,6 +40,8 @@ class NewConversationType extends AbstractType {
 			'attr' => array('size'=>40, 'maxlength'=>80)
 		));
 
+		// TODO: restrict to topics I have access (metadata with write access) to
+/* disabled until I fix that
 		$builder->add('parent', 'entity', array(
 			'required' => false,
 			'empty_value' => 'conversation.parent.empty',
@@ -47,6 +49,7 @@ class NewConversationType extends AbstractType {
 			'class' => 'MsgBundle:Conversation',
 			'property' => 'topic'
 		));
+*/
 
 		$builder->add('content', 'textarea', array(
 			'label' => 'message.content.label',

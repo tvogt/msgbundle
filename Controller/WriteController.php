@@ -50,7 +50,11 @@ class WriteController extends Controller {
 			if (isset($data['contacts'])) foreach ($data['contacts'] as $rec) {
 				$recipients->add($rec);
 			}
+/*
+	FIXME: parent is disabled until fixed in NewConversationType
 			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content'], false, $data['parent']);
+*/
+			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content']);
 			$this->getDoctrine()->getManager()->flush();
 			return $this->redirect($this->get('router')->generate('cmsg_summary'));
 		}
@@ -98,7 +102,8 @@ class WriteController extends Controller {
 
 					}
 					// create the split
-					$message = $this->get('message_manager')->writeSplit($source, $user, $topic, $data['content']);
+					$newmeta = $this->get('message_manager')->writeSplit($source, $user, $topic, $data['content']);
+					return array('plain' => $this->get('router')->generate('cmsg_conversation', array('meta'=>$newmeta)));
 				}
 			} else {
 				$meta = $em->getRepository('MsgBundle:ConversationMetadata')->find($data['conversation']);

@@ -96,12 +96,13 @@ class ReadController extends Controller {
 			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
+		$last = $meta->getLastRead();
 		$data = $this->get('message_manager')->getConversation($meta);
 
 		// flush to update our read status
 		$this->getDoctrine()->getManager()->flush();
 
-		return array('meta' => $meta, 'data' => $data);
+		return array('meta' => $meta, 'last' => $last, 'data' => $data);
 	}
 
 

@@ -3,6 +3,14 @@ Messaging Bundle
 
 This is a bundle for in-app messaging services using Symfony2 and (at the moment) Doctrine 2.
 
+Dependencies
+------------
+PHP Markdown. Add this to composer.json: 
+
+"knplabs/knp-markdown-bundle": "1.2.*@dev",
+
+Note that this relies upon dflydev's markdown package, which is deprecated. It should really use "michelf/php-markdown": "1.4.*@dev" as a dependency.
+
 
 Features
 --------
@@ -13,6 +21,7 @@ Features
 * Flags, tags and scores
 * Permission system
 * time-based access controls (join a conversation and see all posts or only those posted after you join, leave a conversation and you retain access to the old messages you could see while you were part of it)
+* markdown support
 
 
 Vision

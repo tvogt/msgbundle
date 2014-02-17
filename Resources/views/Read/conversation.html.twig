@@ -3,15 +3,43 @@
 {% block content %}
 <h2>{{ 'conversation.title'|trans({}, "MsgBundle")|title }}</h2>
 
-{% include "MsgBundle:Read:one_conversation.html.twig" with {"conversation":data[0]} %}
+{% include "MsgBundle:Read:one_conversation.html.twig" with {"meta": meta, "conversation":data[0]} %}
 
 <div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
+	<button id="syntaxhelp">syntax help</button>
+	<div id="help" style="display:none">
+		You can use <a href="http://daringfireball.net/projects/markdown/syntax">markdown syntax</a>:
+		<ul class="simple">
+			<li># Header 1 #</li>
+			<li>## Header 2 ##</li>
+			<li>## Header 3 ###</li>
+			<li><em>*emphasis*</em></li>
+			<li><strong>**strong emphasis**</strong></li>
+			<li>make lists by beginning each line with a single *<li>
+			<li>...or numbered lists by using 1. 2. 3.<li>
+		</ul>
+		In addition, you can link to entities within the game if you know their ID number (and soon we will have a better way to inserting them):
+		<ul class="simple">
+			<li>link to a realm: [realm:123]</li>
+			<li>link to a character: [character:123] or [noble:123]</li>
+			<li>link to a settlement: [settlement:123] or [estate:123]</li>
+			<li>or just use the first letter, so [r:123] will link to a realm, [e:123] to a settlement, etc.</li>
+		</ul>
+	</div>
 	{{ render(controller('MsgBundle:Write:reply')) }}
 </div>
 
 {% endblock %}
 
 {% block jquery %}
+
+$("#syntaxhelp").click(function(){
+	$("#help").toggle();
+});
+
+var redirect = false;
+var insert = null;
+
 $("#replydialog").dialog({
 	autoOpen: false,
 	width: "50%",
@@ -19,17 +47,23 @@ $("#replydialog").dialog({
 });
 
 $(".cmsg_conversation").on("click", "button.topicreply", function(){
+	insert = $(this).closest('.cmsg_conversation').children('.cmsg_general').first();
 	var id = $(this).data('id');
+	redirect = false;
 	replyform("{{ 'conversation.reply.title'|trans({}, "MsgBundle")|title }}", id, 0);
 });
 
 $(".cmsg_conversation").on("click", "button.reply", function(){
+	insert = $(this).closest('.cmsg_conversation').children('.cmsg_general').first();
 	var id = $(this).closest('.cmsg_message').data('id');
+	redirect = false;
 	replyform("{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}", {{ meta.id }}, id);
 });
 
 $(".cmsg_conversation").on("click", "button.split", function(){
+	insert = $(this).closest('.cmsg_conversation').children('.cmsg_general').first();
 	var id = $(this).closest('.cmsg_message').data('id');
+	redirect = true;
 	replyform("{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}", 0, id);
 	$("#message_reply_topic").parent().show();
 	$("#message_reply_topic").attr("required", "required");
@@ -42,9 +76,19 @@ function replyform(title, conversation, reply_to) {
 	$("#message_reply_conversation").val(conversation);
 	$("#message_reply_reply_to").val(reply_to);
 
-	$("#replydialog form").attr('action', '{{ path('cmsg_reply') }}');	
+	$("#replydialog form").attr('action', '{{ path('cmsg_reply') }}');
 }
 
+$("#replydialog form").ajaxForm(function(response){
+	if (redirect) {
+		window.location.replace(response);
+	} else {
+		console.log(insert);
+		insert.after(response);
+		$("#message_reply_content").val("");
+		$("#replydialog").dialog("close");
+	}
+});
 
 var request;
 var target;

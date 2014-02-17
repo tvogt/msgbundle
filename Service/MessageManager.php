@@ -221,7 +221,7 @@ class MessageManager {
 
 		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);
 		$this->em->flush();
-		return $message;
+		return array($meta,$message);
 	}
 
 	public function writeMessage(Conversation $conversation, User $author, $content, $depth=0, $translate=false) {
@@ -266,7 +266,7 @@ class MessageManager {
 			}
 		}
 
-		$msg = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
+		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
 
 		$rel = new MessageRelation;
 		$rel->setType('response');
@@ -274,7 +274,7 @@ class MessageManager {
 		$rel->setTarget($msg);
 		$this->em->persist($rel);
 
-		return $msg;
+		return $meta;
 	}
 
 

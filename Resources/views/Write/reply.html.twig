@@ -1,5 +1,7 @@
-{% if message is defined %}
-	{% include "MsgBundle:Read:one_message.html.twig" with {"message":message} only %}
+{% if plain is defined %}
+	{{ plain }}
+{% elseif message is defined %}
+	{% include "MsgBundle:Read:one_message.html.twig" with {"last":null, "message":message} only %}
 {% else %}
 	{{ form(form) }}
 {% endif %}

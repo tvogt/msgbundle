@@ -76,11 +76,11 @@ ul.cmsg_actions {
 	margin: 0;
 }
 
-.cmsg_related ul {
+ul.cmsg_related_list {
 	margin: 0;
 }
 
-.cmsg_related li {
+ul.cmsg_related_list li {
 	list-style: none;
 }
 
@@ -120,4 +120,6 @@ button.cmsg_icon:hover {
 	width: 100%;
 }
 
-
+#syntaxhelp {
+	float: right;
+}

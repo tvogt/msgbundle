@@ -8,9 +8,11 @@
 		{% set related_messages = message.relatedtome %}
 	{% endif %}
 	{% if related_messages is not empty %}
+		{# FIXME: some strings here still need translation #}
 		{# TODO: under some conditions, we want to show them right away (say, positive score, or flagged important, or whatever) #}
 		<div class="cmsg_related">
-		in response to: <button class="show" data-type="source">show here</button>
+		in response to: <button class="show" data-type="source">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
 			<li>message from {{ related.source.sender.name }} ({{ related.source.ts|date }})</li>
 			{# TODO: if in a different conversation add something like (in "other topic name") with a link #}
@@ -19,7 +21,8 @@
 	{% endif %}
 
 	<div class="cmsg_content">
-		{{ message.content }}
+		{# TODO: the wikilinks twig extension is specific to Might & Fealty, you will probably want to remove it #}
+		{{ message.content|markdown|striptags('<b><i><p><br><ul><ol><li><h1><h2><blockquote>')|wikilinks }}
 	</div>
 
 	<div class="cmsg_message_meta">
@@ -37,8 +40,11 @@
 	</div>
 
 	<ul class="cmsg_actions">
-		<li><button class="reply">reply</button></li>
-		<li><button class="split">split</button></li>
+		<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
+		<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
+		{% if last is defined and last.timestamp < message.ts.timestamp %}
+			<li>{{ 'message.new'|trans({},"MsgBundle") }}</li>
+		{% endif %}
 	</ul>
 	{% if hide is defined %}
 		{% set related_messages = message.relatedmessagesexcept(hide) %}
@@ -47,8 +53,8 @@
 	{% endif %}
 	{% if message.relatedmessages is not empty %}
 		<div class="cmsg_related">
-		responses: <button class="show" data-type="target">show here</button>
-		<ul>
+		responses: <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
 			<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
 		{% endfor %}

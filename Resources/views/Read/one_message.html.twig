@@ -42,7 +42,7 @@
 	<ul class="cmsg_actions">
 		<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
 		<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
-		{% if last is defined and last.timestamp < message.ts.timestamp %}
+		{% if last is defined and last is not null and last.timestamp < message.ts.timestamp %}
 			<li>{{ 'message.new'|trans({},"MsgBundle") }}</li>
 		{% endif %}
 	</ul>

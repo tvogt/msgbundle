@@ -202,11 +202,11 @@ class MessageManager {
 		$conversation->addMetadata($meta);
 		$this->em->persist($meta);
 
-		return $conversation;
+		return array($meta, $conversation);
 	}
 
 	public function newConversation(User $creator, $recipients, $topic, $content, $translate=false, Conversation $parent=null) {
-		$conversation = $this->createConversation($creator, $topic, $parent);
+		list($creator_meta, $conversation) = $this->createConversation($creator, $topic, $parent);
 
 		foreach ($recipients as $recipient) {
 			if ($recipient != $creator) { // because he has already been added above
@@ -221,7 +221,7 @@ class MessageManager {
 
 		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);
 		$this->em->flush();
-		return array($meta,$message);
+		return array($creator_meta,$message);
 	}
 
 	public function writeMessage(Conversation $conversation, User $author, $content, $depth=0, $translate=false) {

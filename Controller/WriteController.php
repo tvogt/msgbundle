@@ -103,7 +103,7 @@ class WriteController extends Controller {
 					}
 					// create the split
 					$newmeta = $this->get('message_manager')->writeSplit($source, $user, $topic, $data['content']);
-					return array('plain' => $this->get('router')->generate('cmsg_conversation', array('meta'=>$newmeta)));
+					return array('plain' => $this->get('router')->generate('cmsg_conversation', array('meta'=>$newmeta->getId())));
 				}
 			} else {
 				$meta = $em->getRepository('MsgBundle:ConversationMetadata')->find($data['conversation']);

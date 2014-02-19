@@ -36,8 +36,11 @@ class WriteController extends Controller {
 			$distance = $this->get('geography')->calculateSpottingDistance($character);
 		}
 
+		$this->get('dispatcher')->setCharacter($character);
+		$settlement = $this->get('dispatcher')->getActionableSettlement();
+
 		$contacts = $this->get('message_manager')->getContactsList();
-		$form = $this->createForm(new NewConversationType($contacts, $distance, $character));
+		$form = $this->createForm(new NewConversationType($contacts, $distance, $character, $settlement));
 
 		$form->handleRequest($request);
 		if ($form->isValid()) {
@@ -49,6 +52,9 @@ class WriteController extends Controller {
 			}
 			if (isset($data['contacts'])) foreach ($data['contacts'] as $rec) {
 				$recipients->add($rec);
+			}
+			if (isset($data['owner'])) foreach ($data['owner'] as $rec) {
+				$recipients->add($this->get('message_manager')->getMsgUser($rec));				
 			}
 /*
 	FIXME: parent is disabled until fixed in NewConversationType

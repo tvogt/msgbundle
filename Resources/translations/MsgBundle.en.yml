@@ -37,6 +37,8 @@ conversation:
   reference: sub-topics to this:
  nearby:
   label:		characters in the vicinity that you can contact
+ owner:
+  label:    leave a message for the owner of the nearby settlement
  recipients:
   label:		existing contacts that you can include
  create:		create new conversation

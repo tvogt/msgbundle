@@ -34,7 +34,7 @@ class ManageController extends Controller {
 			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
-		if ($meta->getTimespans()) {
+		if ($meta->getTimespans()->count() > 0) {
 			$current = false;
 			foreach ($meta->getTimespans() as $span) {
 				if (!$span->getAccessUntil()) {

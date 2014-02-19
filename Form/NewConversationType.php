@@ -15,11 +15,13 @@ class NewConversationType extends AbstractType {
 	private $recipients;
 	private $distance;
 	private $character;
+	private $settlement;
 
-	public function __construct($recipients, $distance, $character) {
+	public function __construct($recipients, $distance, $character, $settlement=null) {
 		$this->recipients = $recipients;
 		$this->distance = $distance;
 		$this->character = $character;
+		$this->settlement = $settlement;
 	}
 
 	public function getName() {
@@ -66,7 +68,6 @@ class NewConversationType extends AbstractType {
 			'multiple'=>true,
 			'expanded'=>true,
 			'label'=>'conversation.nearby.label',
-			'empty_value'=>'conversation.nearby.empty',
 			'class'=>'BM2SiteBundle:Character', 'property'=>'name', 'query_builder'=>function(EntityRepository $er) use ($me, $maxdistance) {
 				$qb = $er->createQueryBuilder('c');
 				$qb->from('BM2\SiteBundle\Entity\Character', 'me');
@@ -82,6 +83,21 @@ class NewConversationType extends AbstractType {
 				}
 				return $qb;
 		}));
+
+		if ($this->settlement && $this->settlement->getOwner() && $this->settlement->getOwner() != $me) {
+			$owner = $this->settlement->getOwner();
+			$builder->add('owner', 'entity', array(
+				'required' => false,
+				'multiple'=>true,
+				'expanded'=>true,
+				'label'=>'conversation.owner.label',
+				'class'=>'BM2SiteBundle:Character', 'property'=>'name', 'query_builder'=>function(EntityRepository $er) use ($owner) {
+					$qb = $er->createQueryBuilder('c');
+					$qb->where('c.alive = true');
+					$qb->andWhere('c = :owner')->setParameter('owner', $owner);
+					return $qb;
+			}));			
+		}
 
 		if ($this->recipients) {
 			$recipients = $this->recipients;

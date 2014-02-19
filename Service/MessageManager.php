@@ -365,7 +365,8 @@ class MessageManager {
 				}
 			}
 
-			// TODO: make sure owner and ruler are identical
+			// TODO: make sure the ruler has owner permissions
+
 			
 		}
 		return array('added'=>$added, 'removed'=>$removed);

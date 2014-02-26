@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
+use Calitarus\MessagingBundle\Entity\User;
 
 
 /**
@@ -49,7 +50,8 @@ class ReadController extends Controller {
 
 		return array(
 			'total' => $total,
-			'new' => $new
+			'new' => $new,
+			'unread' => $this->getUnread($user)
 		);
 	}
 
@@ -61,16 +63,18 @@ class ReadController extends Controller {
 	public function unreadAction() {
 		$user = $this->get('message_manager')->getCurrentUser();
 
+		return array('unread' => $this->getUnread($user));
+	}
+
+	private function getUnread(User $user) {
 		$unread = new ArrayCollection;
 		foreach ($user->getConversationsMetadata() as $meta) {
 			if ($meta->getUnread() > 0) {
 				$unread->add($meta);
 			}
 		}
-
-		return array('unread' => $unread);
+		return $unread;
 	}
-
 
 	/**
 		* @Route("/contacts", name="cmsg_contacts")

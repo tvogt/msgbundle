@@ -20,6 +20,15 @@
 	position: relative;
 }
 
+.cmsg_old {
+	opacity: 0.5;
+	transition: opacity 0.35s linear;
+}
+
+.cmsg_old:hover {
+	opacity: 1.0;
+}
+
 .cmsg_message_meta {
 	background-color: rgba(0,0,127,0.2);
 	padding: 0.25em;

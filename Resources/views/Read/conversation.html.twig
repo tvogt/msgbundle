@@ -33,6 +33,11 @@
 
 {% block jquery %}
 
+var unread = $(".cmsg_message:not(.cmsg_old)").first();
+if (unread.length) {
+	$("html, body").scrollTop(unread.offset().top);
+}
+
 $("#syntaxhelp").click(function(){
 	$("#help").toggle();
 });

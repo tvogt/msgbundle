@@ -106,7 +106,7 @@ class MessageManager {
 				)
 			));
 
-		$qb->orderBy('msg.ts', 'DESC');
+		$qb->orderBy('msg.ts', 'ASC');
 		$query = $qb->getQuery();
 
 		// set read status
@@ -267,6 +267,11 @@ class MessageManager {
 		}
 
 		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
+
+		// inherit app_reference
+		if ($ref = $source->getConversation()->getAppReference()) {
+			$meta->getConversation()->setAppReference($ref);
+		}
 
 		$rel = new MessageRelation;
 		$rel->setType('response');

@@ -85,7 +85,7 @@ class WriteController extends Controller {
 			$data = $form->getData();
 			$em = $this->getDoctrine()->getManager();
 
-			// TODO: check for permissions 
+			// TODO: check that we are a participant and have write permissions 
 
 			$source = $em->getRepository('MsgBundle:Message')->find($data['reply_to']);
 			if ($source) {

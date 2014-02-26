@@ -5,17 +5,6 @@
 
 <div id="actionlist" class="boxlist">
 	<ul>
-		{% if new.messages > 0 %}
-			<li>
-				<a href="{{ path('cmsg_unread') }}">{{ 'unread.title'|trans({}, "MsgBundle") }}</a>
-				{{ 'summary.new'|trans({"%messages%":new.messages, "%conversations%":new.conversations}, "MsgBundle") }}
-			</li>
-		{% else %}
-			<li class="disabled">
-				<span class="nolink">{{ 'unread.title'|trans({}, "MsgBundle") }}</span>
-				{{ 'summary.nonew'|trans({}, "MsgBundle") }}
-			</li>
-		{% endif %}
 		{% if total > 0 %}
 			<li>
 				<a href="{{ path('cmsg_index') }}">{{ 'index.title'|trans({}, "MsgBundle") }}</a>
@@ -34,5 +23,22 @@
 	</ul>
 </div>
 <br class="clear"/>
+
+
+{# FIXME: this is a code-duplication from unread.html.twig - there is a way to include it without the layout, but I don't remember #}
+<h2>{{ 'unread.title'|trans({}, "MsgBundle")|title }}</h2>
+<p>
+{% if new.messages > 0 %}
+	{{ 'summary.new'|trans({"%messages%":new.messages, "%conversations%":new.conversations}, "MsgBundle") }}
+{% else %}
+	{{ 'unread.title'|trans({}, "MsgBundle") }}
+{% endif %}
+</p>
+<ul>
+{% for meta in unread %}
+	<li><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a> ({{ meta.unread }} new messages)</li>
+{% endfor %}
+<ul>
+
 
 {% endblock %}

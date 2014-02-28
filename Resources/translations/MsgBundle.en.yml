@@ -5,7 +5,7 @@ index:
  unread:    unread
  first:     first message
  last:      last message
- msg:       by %sender% on %on%
+ msg:       by %sender% on %day% (%ts%)
 
 summary:
  title:		messages summary

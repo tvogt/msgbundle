@@ -35,4 +35,15 @@
 		{# TODO: display read messages (ts < meta.last_read) differently #}
 		{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":msg} only %}
 	{% endfor %}
+
+	{% if conversation.messages.count > 5 %}
+	<br/>
+	<div class="cmsg_general">
+		<button class="topicreply" data-id="{{ meta.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
+
+		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}">{{ 'conversation.participants.label'|trans({}, "MsgBundle") }}</a>
+
+		{# TODO: have a button to leave the conversation here as well, but that can't be done easily by ajax, so... #}
+	</div>
+	{% endif %}
 </div>

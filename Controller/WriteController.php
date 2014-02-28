@@ -84,10 +84,18 @@ class WriteController extends Controller {
 		if ($form->isValid()) {
 			$data = $form->getData();
 			$em = $this->getDoctrine()->getManager();
-
-			// TODO: check that we are a participant and have write permissions 
-
 			$source = $em->getRepository('MsgBundle:Message')->find($data['reply_to']);
+
+			// check that we are a participant - TODO: and have write permissions 
+			if ($data['conversation']) {
+				$meta = $em->getRepository('MsgBundle:ConversationMetadata')->find($data['conversation']);
+			} else if ($source) {
+				$meta = $source->getConversation()->findMeta($user);
+			}
+			if (!$meta || $meta->getUser() != $user) {
+				throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			}
+
 			if ($source) {
 				if ($data['conversation']>0) {
 					// reply
@@ -112,12 +120,7 @@ class WriteController extends Controller {
 					return array('plain' => $this->get('router')->generate('cmsg_conversation', array('meta'=>$newmeta->getId())));
 				}
 			} else {
-				$meta = $em->getRepository('MsgBundle:ConversationMetadata')->find($data['conversation']);
-				if ($meta->getUser() == $user) {
-					$message = $this->get('message_manager')->addMessage($meta->getConversation(), $user, $data['content']);
-				} else {
-					// TODO: error message
-				}
+				$message = $this->get('message_manager')->addMessage($meta->getConversation(), $user, $data['content']);
 			}
 			$em->flush();
 			return array('message' => $message);

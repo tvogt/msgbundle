@@ -1,6 +1,6 @@
 <div class="cmsg_message{% if last is defined and last is not null and last.timestamp > message.ts.timestamp %} cmsg_old{% endif %}" data-id="{{ message.id }}">
 	<div class="cmsg_message_meta">
-		{{ 'index.msg'|trans({"%sender%":link(message.sender.appuser), "%on%":message.ts|date}, "MsgBundle")|raw }}
+		{{ 'index.msg'|trans({"%sender%":link(message.sender.appuser), "%day%":message.cycle|gametime("short"), "%ts%":message.ts|date}, "MsgBundle")|raw }}
 	</div>
 	{% if hide is defined %}
 		{% set related_messages = message.relatedtomeexcept(hide) %}

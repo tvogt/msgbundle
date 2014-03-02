@@ -125,4 +125,12 @@ $(".cmsg_conversation").on("click", "button.show", function(){
 	});
 });
 
+
+
+$(".cmsg_flags").on("click", "button.cmsg_icon", function(){
+	var id = $(this).data("msg");
+	var flag = $(this).data("flag");
+	console.log(id);
+	console.log(flag);
+});
 {% endblock %}

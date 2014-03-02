@@ -26,12 +26,19 @@
 	</div>
 
 	<div class="cmsg_message_meta">
+		<ul class="cmsg_actions">
+			{% if last is defined and last is not null and last.timestamp < message.ts.timestamp %}
+				<li>{{ 'message.new'|trans({},"MsgBundle") }}</li>
+			{% endif %}
+			<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
+			<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
+		</ul>
 		<ul class="cmsg_flags">
 			{# TODO: again we need the metadata - how? #}
-			<li><button class="cmsg_icon icon-star3" title="important"></button></li>
-			<li><button class="cmsg_icon icon-lightning" title="act"></button></li>
-			<li><button class="cmsg_icon icon-history" title="remind"></button></li>
-			<li><button class="cmsg_icon icon-drawer2" title="keep"></button></li>
+			<li><button class="cmsg_icon icon-star3" title="important" data-msg="{{ message.id }}" data-flag="important"></button></li>
+			<li><button class="cmsg_icon icon-lightning" title="act" data-msg="{{ message.id }}" data-flag="act"></button></li>
+			<li><button class="cmsg_icon icon-history" title="remind" data-msg="{{ message.id }}" data-flag="remind"></button></li>
+			<li><button class="cmsg_icon icon-drawer2" title="keep" data-msg="{{ message.id }}" data-flag="keep"></button></li>
 		</ul>
 		<ul class="cmsg_tags">
 			{# TODO: again we need the metadata - how? #}
@@ -39,13 +46,6 @@
 		</ul>
 	</div>
 
-	<ul class="cmsg_actions">
-		<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
-		<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
-		{% if last is defined and last is not null and last.timestamp < message.ts.timestamp %}
-			<li>{{ 'message.new'|trans({},"MsgBundle") }}</li>
-		{% endif %}
-	</ul>
 	{% if hide is defined %}
 		{% set related_messages = message.relatedmessagesexcept(hide) %}
 	{% else %}

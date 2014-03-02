@@ -81,6 +81,7 @@ class NewConversationType extends AbstractType {
 				} else {
 					$qb->andWhere('c.inside_settlement IS NULL');
 				}
+				$qb->orderBy('c.name', 'ASC');
 				return $qb;
 		}));
 
@@ -108,11 +109,14 @@ class NewConversationType extends AbstractType {
 				'label' => 'conversation.recipients.label',
 				'empty_value' => 'conversation.recipients.empty',
 				'label' => 'conversation.recipients.label',
-				'class' => 'MsgBundle:User',
+				'class' => 'BM2SiteBundle:Character',
 				'property' => 'name',
+// TODO: sort by character name
 				'query_builder'=>function(EntityRepository $er) use ($recipients) {
-					$qb = $er->createQueryBuilder('u');
+					$qb = $er->createQueryBuilder('c');
+					$qb->join('c.msg_user', 'u');
 					$qb->where('u IN (:recipients)');
+					$qb->orderBy('c.name', 'ASC');
 					$qb->setParameter('recipients', $recipients);
 					return $qb;
 				},

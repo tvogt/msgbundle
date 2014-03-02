@@ -3,8 +3,10 @@
 {% block content %}
 <h2>{{ 'contacts.title'|trans({}, "MsgBundle")|title }}</h2>
 
+<ul>
 {% for contact in contacts %}
-	{{ contact.name }}
+	<li>{{ link(contact.appuser) }}</li>
 {% endfor %}
+</ul>
 
 {% endblock %}

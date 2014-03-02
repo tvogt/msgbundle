@@ -51,10 +51,10 @@ class WriteController extends Controller {
 				$recipients->add($this->get('message_manager')->getMsgUser($rec));
 			}
 			if (isset($data['contacts'])) foreach ($data['contacts'] as $rec) {
-				$recipients->add($rec);
+				$recipients->add($this->get('message_manager')->getMsgUser($rec));
 			}
 			if (isset($data['owner'])) foreach ($data['owner'] as $rec) {
-				$recipients->add($this->get('message_manager')->getMsgUser($rec));				
+				$recipients->add($this->get('message_manager')->getMsgUser($rec));
 			}
 /*
 	FIXME: parent is disabled until fixed in NewConversationType

@@ -15,9 +15,8 @@
 }
 
 .cmsg_message {
-	margin-left: 6em;
 	margin-bottom: 2em;
-	position: relative;
+	margin-left: 2em;
 }
 
 .cmsg_old {
@@ -58,25 +57,13 @@ ul.cmsg_tags li:first-child:before {
 
 
 
-.cmsg_actions {
-	background-color: rgba(127,0,0,0.2);
-	padding: 0.25em;
-}
-
 ul.cmsg_actions {
-	position: absolute;
-	top: 0px;
-	left: -6em;
-	width: 5em;
-	text-align: center
+	float: left;
+	margin-right: 2em;
 }
 
 .cmsg_actions li {
 	display: inline;
-}
-
-.cmsg_actions button {
-	width: 100%;
 }
 
 .cmsg_related {
@@ -131,4 +118,14 @@ button.cmsg_icon:hover {
 
 #syntaxhelp {
 	float: right;
+}
+
+#new_conversation label {
+	display: block;
+	margin-top: 2em;
+}
+
+#new_conversation_nearby label, #new_conversation_contacts label {
+	display: inline-block;
+	margin-top: 0;
 }

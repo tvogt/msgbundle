@@ -7,7 +7,9 @@
 		<field name="access_from" type="datetime" nullable="true"/>
 		<field name="access_until" type="datetime" nullable="true"/>
 
-		<many-to-one field="metadata" target-entity="ConversationMetadata" inversed-by="timespans"/>
+		<many-to-one field="metadata" target-entity="ConversationMetadata" inversed-by="timespans">
+			<join-column name="metadata_id" referenced-column-name="id" on-delete="CASCADE"/>
+		</many-to-one>
 
 	</entity>
 </doctrine-mapping>

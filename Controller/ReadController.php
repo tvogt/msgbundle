@@ -92,10 +92,6 @@ class ReadController extends Controller {
 	public function conversationAction(ConversationMetadata $meta) {
 		$user = $this->get('message_manager')->getCurrentUser();
 
-		// FIXME: this is expensive and should probably not be called every time the conversation is viewed
-		// -- it is only here because this is a good place to guarantee it is always up-to-date
-		$this->get('message_manager')->updateMembers($meta->getConversation());
-
 		if ($meta->getUser() != $user) {
 			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}

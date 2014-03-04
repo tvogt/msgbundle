@@ -26,7 +26,11 @@
 			<ul>
 			{% for conv in conversation.children %}
 				{% set submeta = conv.findmeta(meta.user) %}
-				<li><a href="{{ path('cmsg_conversation', {'meta':submeta.id}) }}">{{ conv.topic }}</a> ({{ 'conversation.messages'|trans({'%total%':conv.messages.count, '%unread%':submeta.unread}, "MsgBundle") }})
+				{% if submeta %}
+					<li><a href="{{ path('cmsg_conversation', {'meta':submeta.id}) }}">{{ conv.topic }}</a> ({{ 'conversation.messages'|trans({'%total%':conv.messages.count, '%unread%':submeta.unread}, "MsgBundle") }})</li>
+				{% else %}
+					<li>{{ conv.topic }} ({{ 'conversation.notmember'|trans({},"MsgBundle") }})</li>
+				{% endif %}
 			{% endfor %}
 			</ul>
 		{% endif %}

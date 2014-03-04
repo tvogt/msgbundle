@@ -293,7 +293,7 @@ class MessageManager {
 	/* management methods */
 	
 	// you might want to change $time_limit to false if you don't use it or only rarely.
-	public function addParticipant(Conversation $conversation, User $participant, $time_limit=true) {
+	public function addParticipant(Conversation $conversation, User $participant, $time_limit=true, \DateInterval $backlog=null) {
 		$meta = new ConversationMetadata;
 		$meta->setConversation($conversation);
 		$meta->setUser($participant);
@@ -304,7 +304,11 @@ class MessageManager {
 			$meta->setUnread(0);
 			$span = new Timespan;
 			$span->setMetadata($meta);
-			$span->setAccessFrom(new \DateTime("now"));
+			$from = new \DateTime("now");
+			if ($backlog) {
+				$from->sub($backlog);
+			}
+			$span->setAccessFrom($from);
 			$meta->addTimespan($span);
 			$this->em->persist($span);
 		} else {
@@ -356,8 +360,8 @@ class MessageManager {
 
 			foreach ($users as $user) {
 				if (!$participants->contains($user)) {
-					// this user is missing from the conversation, but should be there - add him
-					$this->addParticipant($conversation, $user);
+					// this user is missing from the conversation, but should be there - add him with 3 days of backlog
+					$this->addParticipant($conversation, $user, true, new \DateInterval('P3D'));
 					$added++;
 				}
 			}

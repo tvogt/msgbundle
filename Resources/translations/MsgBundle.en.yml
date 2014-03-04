@@ -6,6 +6,7 @@ index:
  first:     first message
  last:      last message
  msg:       by %sender% on %day% (%ts%)
+ msgshort:  by %sender% on %day%
 
 summary:
  title:		messages summary
@@ -43,6 +44,7 @@ conversation:
   label:		existing contacts that you can include
  create:		create new conversation
  messages:  %total% messages, %unread% unread
+ notmember: you are not a participant
  participants:
   label:    participants
  leave:

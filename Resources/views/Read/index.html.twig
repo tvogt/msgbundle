@@ -5,6 +5,7 @@
 	<td style="padding-left: {{ depth}}em">{% if depth > 0 %}<span class="icon-forward"></span>{% endif %}<a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a></td>
 	<td align="right">{{ meta.conversation.messages.count }}</td>
 	<td align="right">{{ meta.unread }}</td>
+	<td align="right">{{ meta.conversation.metadata.count }}</td>
 	<td>
 		{% set msg = meta.conversation.messages.first %}
 		{% if msg %}
@@ -42,6 +43,7 @@
 			<th>{{ 'index.topic'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.messages'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
+			<th>{{ 'index.participants'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
 		</tr>

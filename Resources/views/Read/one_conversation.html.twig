@@ -1,13 +1,21 @@
-<div class="cmsg_conversation">
-	<h3>{{ conversation.topic }}</h3>
+{% set participantscount = conversation.metadata.count %}
+{% macro general(meta, conversation, participantscount) %}
 	<div class="cmsg_general">
 		<button class="topicreply" data-id="{{ meta.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
 
-		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}">{{ 'conversation.participants.label'|trans({}, "MsgBundle") }}</a>
+		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}"{% if participantscount < 5 %}
+		 class="tt" title="{% for m in conversation.metadata %}{{ m.user.name }}{% if loop.last == false %}, {% endif %}{% endfor %}" 
+		 {% endif %}>{{ 'conversation.participants.label'|trans({"%count%":participantscount}, "MsgBundle") }}</a>
 
 		{# TODO: have a button to leave the conversation here as well, but that can't be done easily by ajax, so... #}
 	</div>
+{% endmacro %}
 
+{% import _self as macros %}
+
+<div class="cmsg_conversation">
+	<h3>{{ conversation.topic }}</h3>
+	{{ macros.general(meta, conversation, participantscount) }}
 	{% if conversation.parent %}
 		{{ 'conversation.parent.reference'|trans({}, "MsgBundle") }}
 		{% set topmeta = conversation.parent.findmeta(meta.user) %}
@@ -36,18 +44,12 @@
 		{% endif %}
 	{% endif %}
 	{% for msg in conversation.messages %}
-		{# TODO: display read messages (ts < meta.last_read) differently #}
 		{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":msg} only %}
 	{% endfor %}
 
+	{# FIXME: this only counts top-level messages, for some reason #}
 	{% if conversation.messages.count > 5 %}
 	<br/>
-	<div class="cmsg_general">
-		<button class="topicreply" data-id="{{ meta.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
-
-		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}">{{ 'conversation.participants.label'|trans({}, "MsgBundle") }}</a>
-
-		{# TODO: have a button to leave the conversation here as well, but that can't be done easily by ajax, so... #}
-	</div>
+	{{ macros.general(meta, conversation, participantscount) }}
 	{% endif %}
 </div>

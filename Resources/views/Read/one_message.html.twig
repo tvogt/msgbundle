@@ -56,7 +56,11 @@
 		responses: <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
-			<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
+			{% if last is defined and last is not null and last.timestamp < related.target.ts.timestamp %}
+				<li>{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target} only %}</li>
+			{% else %}
+				<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
+			{% endif %}
 		{% endfor %}
 		</ul>
 		</div>

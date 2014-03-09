@@ -381,6 +381,17 @@ class MessageManager {
 		return array('added'=>$added, 'removed'=>$removed);
 	}
 
+	public function setAllUnread(User $user=null) {
+		if (!$user) { $user=$this->getCurrentUser(); }
+
+		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me');
+		$query->setParameter('me', $user);
+		foreach ($query->getResult() as $meta) {
+			$count = $meta->getConversation()->getMessages()->count();
+			$meta->setUnread($count);
+			$meta->setLastRead(null);
+		}
+	}
 
 	private function equal(User $a, User $b) {
 		echo $a->getName()." = ".$b->getName()." ?";

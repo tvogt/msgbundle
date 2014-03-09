@@ -3,6 +3,7 @@ index:
  topic:     topic
  messages:  messages
  unread:    unread
+ participants:  participants
  first:     first message
  last:      last message
  msg:       by %sender% on %day% (%ts%)
@@ -46,7 +47,7 @@ conversation:
  messages:  %total% messages, %unread% unread
  notmember: you are not a participant
  participants:
-  label:    participants
+  label:    %count% participants
  leave:
   label:    leave conversation
   help:     remove yourself from this conversation and all sub-topics it might have.
@@ -61,6 +62,7 @@ message:
 
 participants:
  title:     Conversation Participants
+ managed:   This conversation is linked to %reference% and its participants list is automatically updated.
 
 right:
  owner:                 owner

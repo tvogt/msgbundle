@@ -97,6 +97,11 @@ class ReadController extends Controller {
 		}
 
 		$last = $meta->getLastRead();
+		var_dump($last);
+		if ($last==null) {
+			// if this is null, we've never read this conversation, so everything is new
+			$last = new \DateTime('2014-01-01');
+		}
 		$data = $this->get('message_manager')->getConversation($meta);
 
 		// flush to update our read status

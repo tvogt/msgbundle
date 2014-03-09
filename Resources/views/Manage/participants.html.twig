@@ -2,7 +2,9 @@
 
 {% block content %}
 <h2>{{ 'participants.title'|trans({}, "MsgBundle")|title }}</h2>
-
+{% if metas.first.conversation.appreference %}
+	<p>{{ 'participants.managed'|trans({"%reference%":link(metas.first.conversation.appreference)}, "MsgBundle")|raw }}</p>
+{% endif %}
 <table>
 	<thead>
 		<tr>

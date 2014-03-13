@@ -118,6 +118,7 @@ class MessageManager {
 	public function getToplevelConversationsMeta(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
+		/* TODO: this should be sorted by the last message posted to the conversation */
 		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL');
 		$query->setParameter('me', $user);
 		return $query->getResult();
@@ -177,6 +178,19 @@ class MessageManager {
 		}
 		$this->em->flush();
 	}
+
+
+	public function getUnreadMessages(User $user=null) {
+		if (!$user) { $user=$this->getCurrentUser(); }
+		$unread = new ArrayCollection;
+		foreach ($user->getConversationsMetadata() as $meta) {
+			if ($meta->getUnread() > 0) {
+				$unread->add($meta);
+			}
+		}
+		return $unread;
+	}
+
 
 
 
@@ -363,6 +377,22 @@ class MessageManager {
 					// this user is missing from the conversation, but should be there - add him with 3 days of backlog
 					$this->addParticipant($conversation, $user, true, new \DateInterval('P3D'));
 					$added++;
+				} else {
+					// he's a participant - but does he have an open-ended timespan?
+					$meta = $conversation->findMeta($user);
+					$open = false;
+					foreach ($meta->getTimespans() as $timespan) {
+						if ($timespan->getAccessUntil()==null) {
+							$open = true;
+						}
+					}
+					if (!$open) {
+						$span = new Timespan;
+						$span->setMetadata($meta);
+						$span->setAccessFrom(new \DateTime("now"));
+						$meta->addTimespan($span);
+						$this->em->persist($span);
+					}
 				}
 			}
 
@@ -393,14 +423,4 @@ class MessageManager {
 		}
 	}
 
-	private function equal(User $a, User $b) {
-		echo $a->getName()." = ".$b->getName()." ?";
-		if ($a==$b) {
-			echo "true";
-		} else {
-			echo "false";
-		}
-		echo "\n";
-		return $a == $b;
-	}
 }

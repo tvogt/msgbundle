@@ -48,13 +48,22 @@ class WriteController extends Controller {
 
 			$recipients = new ArrayCollection;
 			foreach ($data['nearby'] as $rec) {
-				$recipients->add($this->get('message_manager')->getMsgUser($rec));
+				$r = $this->get('message_manager')->getMsgUser($rec);
+				if (!$recipients->contains($r)) {
+					$recipients->add($r);
+				}
 			}
 			if (isset($data['contacts'])) foreach ($data['contacts'] as $rec) {
-				$recipients->add($this->get('message_manager')->getMsgUser($rec));
+				$r = $this->get('message_manager')->getMsgUser($rec);
+				if (!$recipients->contains($r)) {
+					$recipients->add($r);
+				}
 			}
 			if (isset($data['owner'])) foreach ($data['owner'] as $rec) {
-				$recipients->add($this->get('message_manager')->getMsgUser($rec));
+				$r = $this->get('message_manager')->getMsgUser($rec);
+				if (!$recipients->contains($r)) {
+					$recipients->add($r);
+				}
 			}
 /*
 	FIXME: parent is disabled until fixed in NewConversationType

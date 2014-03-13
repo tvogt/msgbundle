@@ -5,8 +5,8 @@
 
 <ul>
 {% for meta in unread %}
-	<li><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a> ({{ meta.unread }} new messages)</li>
+	<li><a href="{{ path('cmsg_conversation', {'meta':meta.id}) }}">{{ meta.conversation.topic }}</a> ({{ 'summary.new2'|trans({"%new%":meta.unread}, "MsgBundle") }})</li>
 {% endfor %}
-<ul>
+</ul>
 
 {% endblock %}

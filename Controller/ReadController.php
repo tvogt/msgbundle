@@ -51,7 +51,7 @@ class ReadController extends Controller {
 		return array(
 			'total' => $total,
 			'new' => $new,
-			'unread' => $this->getUnread($user)
+			'unread' => $this->get('message_manager')->getUnreadMessages($user)
 		);
 	}
 
@@ -63,17 +63,7 @@ class ReadController extends Controller {
 	public function unreadAction() {
 		$user = $this->get('message_manager')->getCurrentUser();
 
-		return array('unread' => $this->getUnread($user));
-	}
-
-	private function getUnread(User $user) {
-		$unread = new ArrayCollection;
-		foreach ($user->getConversationsMetadata() as $meta) {
-			if ($meta->getUnread() > 0) {
-				$unread->add($meta);
-			}
-		}
-		return $unread;
+		return array('unread' => $this->get('message_manager')->getUnreadMessages($user));
 	}
 
 	/**
@@ -97,7 +87,6 @@ class ReadController extends Controller {
 		}
 
 		$last = $meta->getLastRead();
-		var_dump($last);
 		if ($last==null) {
 			// if this is null, we've never read this conversation, so everything is new
 			$last = new \DateTime('2014-01-01');

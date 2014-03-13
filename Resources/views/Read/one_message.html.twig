@@ -22,7 +22,7 @@
 
 	<div class="cmsg_content">
 		{# TODO: the wikilinks twig extension is specific to Might & Fealty, you will probably want to remove it #}
-		{{ message.content|markdown|striptags('<strong><em><b><i><p><br><ul><ol><li><h1><h2><blockquote>')|wikilinks }}
+		{{ message.content|markdown|striptags('<strong><em><b><i><p><br><ul><ol><li><h1><h2><h3><blockquote>')|wikilinks }}
 	</div>
 
 	<div class="cmsg_message_meta">
@@ -56,7 +56,7 @@
 		responses: <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
-			{% if last is defined and last is not null and last.timestamp < related.target.ts.timestamp %}
+			{% if last is defined and last is not null and last.timestamp > message.ts.timestamp and last.timestamp < related.target.ts.timestamp %}
 				<li>{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target} only %}</li>
 			{% else %}
 				<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>

@@ -1,3 +1,5 @@
+now:        now
+
 index:
  title:     conversations overview
  topic:     topic
@@ -12,6 +14,7 @@ index:
 summary:
  title:		messages summary
  new:			You have %messages% new messages in %conversations% conversations.
+ new2:    %new% new messages
  nonew:		You have no new messages.
  total:   You are participating in a total of %conversations% conversations.
  nototal: You are not participating in any conversations currently.
@@ -22,6 +25,7 @@ unread:
 
 conversation:
  title:		  Conversation
+ access:    Your access to this conversation:
  new:
   title:		new conversation
   label:    create a new conversation

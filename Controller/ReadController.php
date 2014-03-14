@@ -96,7 +96,15 @@ class ReadController extends Controller {
 		// flush to update our read status
 		$this->getDoctrine()->getManager()->flush();
 
-		return array('meta' => $meta, 'last' => $last, 'data' => $data);
+		$veryold = new \DateTime('now');
+		$veryold->sub(new \DateInterval("P7D")); // TODO: make this user-configurable
+
+		return array(
+			'meta' => $meta,
+			'last' => $last,
+			'data' => $data,
+			'veryold' => $veryold
+		);
 	}
 
 

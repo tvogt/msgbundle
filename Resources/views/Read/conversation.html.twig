@@ -133,4 +133,20 @@ $(".cmsg_flags").on("click", "button.cmsg_icon", function(){
 	console.log(id);
 	console.log(flag);
 });
+
+$("#oldmessages").hide();
+var old_visible = false;
+$("#hidetoggle").click(function(){
+	if (old_visible) {
+		console.log("hide");
+		$("#hidetoggle").html("{{ 'conversation.old.show'|trans({},"MsgBundle") }}");
+		$("#oldmessages").hide("blind", 1200);
+		old_visible = false;
+	} else {
+		console.log("show");
+		$("#hidetoggle").html("{{ 'conversation.old.hide'|trans({},"MsgBundle") }}");
+		$("#oldmessages").show("blind", 1200);
+		old_visible = true;
+	}
+});
 {% endblock %}

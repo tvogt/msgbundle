@@ -19,7 +19,6 @@ use Calitarus\MessagingBundle\Entity\MessageMetadata;
 use Calitarus\MessagingBundle\Entity\MessageRelation;
 use Calitarus\MessagingBundle\Entity\User;
 use Calitarus\MessagingBundle\Entity\Right;
-use Calitarus\MessagingBundle\Entity\Timespan;
 
 
 class MessageManager {
@@ -88,23 +87,7 @@ class MessageManager {
 			->andWhere($qb->expr()->orX(
 				$qb->expr()->eq('meta.user', 'm.user'),
 				$qb->expr()->isNull('meta')
-			));
-
-		// add time-based restriction:
-		$qb->leftJoin('m.timespans', 't')
-			->andWhere($qb->expr()->orX(
-				$qb->expr()->isNull('t'),
-				$qb->expr()->andX(
-					$qb->expr()->orX(
-						$qb->expr()->isNull('t.access_from'),
-						$qb->expr()->gte('msg.ts', 't.access_from')
-					),
-					$qb->expr()->orX(
-						$qb->expr()->isNull('t.access_until'),
-						$qb->expr()->lte('msg.ts', 't.access_until')
-					)
-				)
-			));
+		));
 
 		$qb->orderBy('msg.ts', 'ASC');
 		$query = $qb->getQuery();
@@ -307,51 +290,22 @@ class MessageManager {
 	/* management methods */
 	
 	// you might want to change $time_limit to false if you don't use it or only rarely.
-	public function addParticipant(Conversation $conversation, User $participant, $time_limit=true, \DateInterval $backlog=null) {
+	public function addParticipant(Conversation $conversation, User $participant) {
 		$meta = new ConversationMetadata;
 		$meta->setConversation($conversation);
 		$meta->setUser($participant);
 		$conversation->addMetadata($meta);
+		$meta->setUnread($conversation->getMessages()->count());
 		$this->em->persist($meta);
-
-		if ($time_limit) {
-			$meta->setUnread(0);
-			$span = new Timespan;
-			$span->setMetadata($meta);
-			$from = new \DateTime("now");
-			if ($backlog) {
-				$from->sub($backlog);
-			}
-			$span->setAccessFrom($from);
-			$meta->addTimespan($span);
-			$this->em->persist($span);
-		} else {
-			$meta->setUnread($conversation->getMessages()->count());
-		}
 	}
 
 	public function removeParticipant(Conversation $conversation, User $participant) {
 		$meta = $conversation->findMeta($participant);
 		if ($meta) {
-			// update or generate end-of-access timespan
-			if ($meta->getTimespans()->isEmpty()) {
-				$span = new Timespan;
-				$span->setMetadata($meta);
-				$span->setAccessUntil(new \DateTime("now"));
-				$meta->addTimespan($span);
-				$this->em->persist($span);
-			} else {
-				foreach ($meta->getTimespans() as $span) {
-					if (!$span->getAccessUntil()) {
-						$span->setAccessUntil(new \DateTime("now"));
-					}
-				}
-			}
-
-			// remove all rights to this conversation
-			foreach ($meta->getRights() as $right) {
-				$meta->removeRight($right);
-			}
+			// remove from conversation
+			$meta->getConversation()->removeMetadata($meta);
+			$meta->getUser()->removeConversationsMetadata($meta);
+			$this->em->remove($meta);
 		}
 	}
 
@@ -374,25 +328,9 @@ class MessageManager {
 
 			foreach ($users as $user) {
 				if (!$participants->contains($user)) {
-					// this user is missing from the conversation, but should be there - add him with 3 days of backlog
-					$this->addParticipant($conversation, $user, true, new \DateInterval('P3D'));
+					// this user is missing from the conversation, but should be there
+					$this->addParticipant($conversation, $user);
 					$added++;
-				} else {
-					// he's a participant - but does he have an open-ended timespan?
-					$meta = $conversation->findMeta($user);
-					$open = false;
-					foreach ($meta->getTimespans() as $timespan) {
-						if ($timespan->getAccessUntil()==null) {
-							$open = true;
-						}
-					}
-					if (!$open) {
-						$span = new Timespan;
-						$span->setMetadata($meta);
-						$span->setAccessFrom(new \DateTime("now"));
-						$meta->addTimespan($span);
-						$this->em->persist($span);
-					}
 				}
 			}
 

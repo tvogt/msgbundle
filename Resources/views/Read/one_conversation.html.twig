@@ -15,22 +15,6 @@
 
 <div class="cmsg_conversation">
 	<h3>{{ conversation.topic }}</h3>
-	{{ 'conversation.access'|trans({}, "MsgBundle") }}
-	<ul class="shortlist">
-		{% for timespan in meta.timespans %}
-			<li>
-			{% if timespan.accessfrom is not null and timespan.accessuntil is not null %}
-				{{ timespan.accessfrom|date }} - {{ timespan.accessuntil|date }}
-			{% elseif timespan.accessfrom is not null %}
-				{{ timespan.accessfrom|date }} - {{ 'now'|trans({}, "MsgBundle") }}
-			{% elseif timespan.accessuntil is not null %}
-				- {{ timespan.accessuntil|date }}
-			{% else %}
-				(this shouldn't happen)
-			{% endif %}
-			</li>
-		{% endfor %}
-	</ul>
 
 	{{ macros.general(meta, conversation, participantscount) }}
 	{% if conversation.parent %}
@@ -60,9 +44,21 @@
 			</ul>
 		{% endif %}
 	{% endif %}
+	{% set in_hidden = false %}
 	{% for msg in conversation.messages %}
+		{% if in_hidden == false and msg.ts < veryold %}
+			<button id="hidetoggle">{{ 'conversation.old.show'|trans({},"MsgBundle") }}</button>
+			<div id="oldmessages">
+			{% set in_hidden = true %}
+		{% elseif in_hidden == true and msg.ts > veryold %}
+			</div>
+			{% set in_hidden = false %}
+		{% endif %}
 		{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":msg} only %}
 	{% endfor %}
+	{% if in_hidden == true %}
+		</div>
+	{% endif %}
 
 	{# FIXME: this only counts top-level messages, for some reason #}
 	{% if conversation.messages.count > 5 %}

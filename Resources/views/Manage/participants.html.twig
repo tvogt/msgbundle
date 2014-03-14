@@ -18,7 +18,6 @@
 	{% for meta in metas %}
 		<tr>
 			<td>{{ link(meta.user.appuser) }}</td>
-			{# TODO: how to display timespans? we could theoretically have a lot of them... #}
 			{% for right in rights %}
 				<td align="center">
 				{% if meta.hasright(right) %}
@@ -28,18 +27,6 @@
 				{% endif %}
 				</td>
 			{% endfor %}
-			<td><ul class="simple">
-			{% for span in meta.timespans %}
-				<li>
-					{% if span.accessfrom %}
-						from {{ span.accessfrom|date }}
-					{% endif %}
-					{% if span.accessuntil %}
-						until {{ span.accessuntil|date }}
-					{% endif %}
-				</li>
-			{% endfor %}
-			</ul></td>
 		</tr>
 	{% endfor %}
 	</tbody>

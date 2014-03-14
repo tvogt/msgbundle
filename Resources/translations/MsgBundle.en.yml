@@ -25,7 +25,6 @@ unread:
 
 conversation:
  title:		  Conversation
- access:    Your access to this conversation:
  new:
   title:		new conversation
   label:    create a new conversation
@@ -55,6 +54,9 @@ conversation:
  leave:
   label:    leave conversation
   help:     remove yourself from this conversation and all sub-topics it might have.
+ old:
+  show:     show older messages
+  hide:     hide old messages
 
 message:
  content:

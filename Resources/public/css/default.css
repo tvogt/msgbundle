@@ -129,3 +129,7 @@ button.cmsg_icon:hover {
 	display: inline-block;
 	margin-top: 0;
 }
+
+button#hidetoggle {
+	margin: 0.5em 2em;
+}

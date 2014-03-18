@@ -197,6 +197,7 @@ class MessageManager {
 		$meta->addRight($owner);
 
 		$conversation->addMetadata($meta);
+		$creator->addConversationsMetadata($meta);
 		$this->em->persist($meta);
 
 		return array($meta, $conversation);
@@ -212,6 +213,7 @@ class MessageManager {
 				$meta->setConversation($conversation);
 				$meta->setUser($recipient);
 				$conversation->addMetadata($meta);
+				$recipient->addConversationsMetadata($meta);
 				$this->em->persist($meta);
 			}
 		}
@@ -231,6 +233,7 @@ class MessageManager {
 		$msg->setDepth($depth);
 		$msg->setTranslate($translate);
 		$this->em->persist($msg);
+		$conversation->addMessage($msg);
 
 		// now increment the unread counter for everyone except the author
 		foreach ($conversation->getMetadata() as $reader) {
@@ -318,33 +321,31 @@ class MessageManager {
 		if ($realm) {
 			$members = $realm->findMembers();
 
-			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
-			$query->setParameter('members', $members->toArray());
-			$users = new ArrayCollection($query->getResult());
+			if ($members && !$members->isEmpty()) {
+				$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
+				$query->setParameter('members', $members->toArray());
+				$users = new ArrayCollection($query->getResult());
 
-			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u JOIN u.conversations_metadata m WHERE m.conversation = :conversation');
-			$query->setParameter('conversation', $conversation);
-			$participants = new ArrayCollection($query->getResult());
+				$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u JOIN u.conversations_metadata m WHERE m.conversation = :conversation');
+				$query->setParameter('conversation', $conversation);
+				$participants = new ArrayCollection($query->getResult());
 
-			foreach ($users as $user) {
-				if (!$participants->contains($user)) {
-					// this user is missing from the conversation, but should be there
-					$this->addParticipant($conversation, $user);
-					$added++;
+				foreach ($users as $user) {
+					if (!$participants->contains($user)) {
+						// this user is missing from the conversation, but should be there
+						$this->addParticipant($conversation, $user);
+						$added++;
+					}
 				}
-			}
 
-			foreach ($participants as $part) {
-				if (!$users->contains($part)) {
-					// this user is in the conversation, but shouldn't - remove him
-					$this->removeParticipant($conversation, $part);
-					$removed++;
+				foreach ($participants as $part) {
+					if (!$users->contains($part)) {
+						// this user is in the conversation, but shouldn't - remove him
+						$this->removeParticipant($conversation, $part);
+						$removed++;
+					}
 				}
-			}
-
-			// TODO: make sure the ruler has owner permissions
-
-			
+			}			
 		}
 		return array('added'=>$added, 'removed'=>$removed);
 	}
@@ -352,9 +353,7 @@ class MessageManager {
 	public function setAllUnread(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
-		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me');
-		$query->setParameter('me', $user);
-		foreach ($query->getResult() as $meta) {
+		foreach ($user->getConversationsMetadata() as $meta) {
 			$count = $meta->getConversation()->getMessages()->count();
 			$meta->setUnread($count);
 			$meta->setLastRead(null);

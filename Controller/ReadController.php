@@ -51,7 +51,8 @@ class ReadController extends Controller {
 		return array(
 			'total' => $total,
 			'new' => $new,
-			'unread' => $this->get('message_manager')->getUnreadMessages($user)
+			'unread' => $this->get('message_manager')->getUnreadMessages($user),
+			'local_news' => $this->get('news_manager')->getLocalList($user->getAppUser())
 		);
 	}
 

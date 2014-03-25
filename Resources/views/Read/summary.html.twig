@@ -40,5 +40,9 @@
 {% endfor %}
 </ul>
 
+{# this is MaF-specific: #}
+{% if not local_news.isempty %}
+	{% include "BM2SiteBundle:element:newslist.html.twig" with {"title":"news.local2"|trans({},"communication")|title, "list":local_news} only %}
+{% endif %}
 
 {% endblock %}

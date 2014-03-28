@@ -15,9 +15,15 @@
 			<join-column name="conversation_id" referenced-column-name="id" on-delete="CASCADE"/>
 		</many-to-one>
 
-		<one-to-many field="metadata" target-entity="MessageMetadata" mapped-by="message"/>
-		<one-to-many field="related_messages" target-entity="MessageRelation" mapped-by="source"/>
-		<one-to-many field="related_to_me" target-entity="MessageRelation" mapped-by="target"/>
+		<one-to-many field="metadata" target-entity="MessageMetadata" mapped-by="message" on-delete="CASCADE">
+			<cascade><cascade-remove /></cascade>
+		</one-to-many>
+		<one-to-many field="related_messages" target-entity="MessageRelation" mapped-by="source" on-delete="CASCADE">
+			<cascade><cascade-remove /></cascade>
+		</one-to-many>
+		<one-to-many field="related_to_me" target-entity="MessageRelation" mapped-by="target" on-delete="CASCADE">
+			<cascade><cascade-remove /></cascade>
+		</one-to-many>
 
 	</entity>
 </doctrine-mapping>

@@ -223,7 +223,7 @@ class MessageManager {
 		return array($creator_meta,$message);
 	}
 
-	public function writeMessage(Conversation $conversation, User $author, $content, $depth=0, $translate=false) {
+	public function writeMessage(Conversation $conversation, User $author=null, $content="(empty)", $depth=0, $translate=false) {
 		$msg = new Message;
 		$msg->setSender($author);
 		$msg->setContent($content);

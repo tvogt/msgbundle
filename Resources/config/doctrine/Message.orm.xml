@@ -7,7 +7,6 @@
 		<field name="content" type="text"/>
 		<field name="ts" type="datetime"/>
 		<field name="cycle" type="integer"/>
-		<field name="translate" type="boolean"/>
 		<field name="depth" type="smallint"/>
 
 		<many-to-one field="sender" target-entity="User" inversed-by="sent_messages"/>

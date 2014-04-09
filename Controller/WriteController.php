@@ -17,6 +17,10 @@ use Calitarus\MessagingBundle\Form\NewConversationType;
 use Calitarus\MessagingBundle\Form\MessageReplyType;
 
 
+use BM2\SiteBundle\Entity\Realm;
+
+
+
 /**
  * @Route("/write")
  */
@@ -24,30 +28,42 @@ class WriteController extends Controller {
 
 	/**
 		* @Route("/new_conversation", name="cmsg_new_conversation")
+		* @Route("/new_conversation/{realm}", name="cmsg_new_conversation_in_group")
 		* @Template
 		*/
-	public function newconversationAction(Request $request) {
+	public function newconversationAction(Request $request, Realm $realm=null) {
 		$user = $this->get('message_manager')->getCurrentUser();
-
 		$character = $this->get('appstate')->getCharacter();
-		if ($character->getAvailableEntourageOfType("herald")->isEmpty()) {
-			$distance = $this->get('geography')->calculateInteractionDistance($character);
-		} else {
-			$distance = $this->get('geography')->calculateSpottingDistance($character);
+
+		if ($realm) {
+			if (!$character->findRealms()->contains($realm)) {
+				$realm = null;
+			}
 		}
 
-		$this->get('dispatcher')->setCharacter($character);
-		$settlement = $this->get('dispatcher')->getActionableSettlement();
+		if ($realm) {
+			$contacts = null;
+			$distance = null;
+			$settlement = null;
+		} else {
+			if ($character->getAvailableEntourageOfType("herald")->isEmpty()) {
+				$distance = $this->get('geography')->calculateInteractionDistance($character);
+			} else {
+				$distance = $this->get('geography')->calculateSpottingDistance($character);
+			}
+			$this->get('dispatcher')->setCharacter($character);
+			$settlement = $this->get('dispatcher')->getActionableSettlement();
+			$contacts = $this->get('message_manager')->getContactsList();	
+		}
 
-		$contacts = $this->get('message_manager')->getContactsList();
-		$form = $this->createForm(new NewConversationType($contacts, $distance, $character, $settlement));
+		$form = $this->createForm(new NewConversationType($contacts, $distance, $character, $settlement, $realm));
 
 		$form->handleRequest($request);
 		if ($form->isValid()) {
 			$data = $form->getData();
 
 			$recipients = new ArrayCollection;
-			foreach ($data['nearby'] as $rec) {
+			if (isset($data['nearby'])) foreach ($data['nearby'] as $rec) {
 				$r = $this->get('message_manager')->getMsgUser($rec);
 				if (!$recipients->contains($r)) {
 					$recipients->add($r);
@@ -67,15 +83,16 @@ class WriteController extends Controller {
 			}
 /*
 	FIXME: parent is disabled until fixed in NewConversationType
-			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content'], false, $data['parent']);
+			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content'], $data['parent'], $realm);
 */
-			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content']);
+			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content'], null, $realm);
 			$this->getDoctrine()->getManager()->flush();
 			return $this->redirect($this->get('router')->generate('cmsg_summary'));
 		}
 
 		return array(
-			'form' => $form->createView()
+			'form' => $form->createView(),
+			'realm' => $realm
 		);
 	}
 

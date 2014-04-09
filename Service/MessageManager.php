@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 use BM2\SiteBundle\Service\AppState;
 use BM2\SiteBundle\Entity\Character;
+use BM2\SiteBundle\Entity\Realm;
 
 use Calitarus\MessagingBundle\Entity\Conversation;
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
@@ -53,15 +54,6 @@ class MessageManager {
 		return $this->user;
 	}
 
-	public function findTopics(User $user=null) {
-		if (!$user) { $user=$this->getCurrentUser(); }
-
-		$query = $this->em->createQuery('SELECT c FROM MsgBundle:Conversation c JOIN c.metadata m JOIN m.user u WHERE c.parent IS NULL and u = :me');
-		$query->setParameter('me', $user);
-		return $query->getResult();
-	}
-
-
 	public function getContactsList(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
@@ -102,7 +94,7 @@ class MessageManager {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
 		/* TODO: this should be sorted by the last message posted to the conversation */
-		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL');
+		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL ORDER BY c.app_reference ASC');
 		$query->setParameter('me', $user);
 		return $query->getResult();
 	}
@@ -179,12 +171,15 @@ class MessageManager {
 
 	/* creation methods */
 	
-	public function createConversation(User $creator, $topic, Conversation $parent=null) {
+	public function createConversation(User $creator, $topic, Conversation $parent=null, Realm $realm=null) {
 		$conversation = new Conversation;
 		$conversation->setTopic($topic);
 		if ($parent) {
 			$conversation->setParent($parent);
 			$parent->addChildren($conversation);
+		}
+		if ($realm) {
+			$conversation->setAppReference($realm);
 		}
 		$this->em->persist($conversation);
 
@@ -203,8 +198,18 @@ class MessageManager {
 		return array($meta, $conversation);
 	}
 
-	public function newConversation(User $creator, $recipients, $topic, $content, $translate=false, Conversation $parent=null) {
-		list($creator_meta, $conversation) = $this->createConversation($creator, $topic, $parent);
+	public function newConversation(User $creator, $recipients, $topic, $content, Conversation $parent=null, Realm $realm=null) {
+		list($creator_meta, $conversation) = $this->createConversation($creator, $topic, $parent, $realm);
+
+		if ($realm) {
+			$members = array();
+			foreach ($realm->findMembers() as $m) {
+				$members[] = $m->getId();
+			}
+			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
+			$query->setParameter('members', $members);
+			$recipients = $query->getResult();
+		}
 
 		foreach ($recipients as $recipient) {
 			if ($recipient != $creator) { // because he has already been added above
@@ -218,12 +223,12 @@ class MessageManager {
 			}
 		}
 
-		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);
+		$message = $this->writeMessage($conversation, $creator, $content, 0);
 		$this->em->flush();
 		return array($creator_meta,$message);
 	}
 
-	public function writeMessage(Conversation $conversation, User $author=null, $content="(empty)", $depth=0, $translate=false) {
+	public function writeMessage(Conversation $conversation, User $author=null, $content="(empty)", $depth=0) {
 		$msg = new Message;
 		$msg->setSender($author);
 		$msg->setContent($content);
@@ -231,7 +236,6 @@ class MessageManager {
 		$msg->setTs(new \DateTime("now"));
 		$msg->setCycle($this->appstate->getCycle());
 		$msg->setDepth($depth);
-		$msg->setTranslate($translate);
 		$this->em->persist($msg);
 		$conversation->addMessage($msg);
 
@@ -245,8 +249,8 @@ class MessageManager {
 		return $msg;
 	}
 
-	public function writeReply(Message $source, User $author, $content, $translate=false) {
-		$msg = $this->writeMessage($source->getConversation(), $author, $content, $source->getDepth()+1, $translate);
+	public function writeReply(Message $source, User $author, $content) {
+		$msg = $this->writeMessage($source->getConversation(), $author, $content, $source->getDepth()+1);
 
 		$rel = new MessageRelation;
 		$rel->setType('response');
@@ -257,7 +261,7 @@ class MessageManager {
 		return $msg;
 	}
 
-	public function writeSplit(Message $source, User $author, $topic, $content, $translate=false) {
+	public function writeSplit(Message $source, User $author, $topic, $content) {
 		// set our recipients to be identical to the ones of the old conversation
 		$recipients = new ArrayCollection;
 		foreach ($source->getConversation()->getMetadata() as $m) {
@@ -266,7 +270,7 @@ class MessageManager {
 			}
 		}
 
-		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
+		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $source->getConversation());
 
 		// inherit app_reference
 		if ($ref = $source->getConversation()->getAppReference()) {
@@ -283,8 +287,8 @@ class MessageManager {
 	}
 
 
-	public function addMessage(Conversation $conversation, User $author, $content, $translate=false) {
-		$msg = $this->writeMessage($conversation, $author, $content, 0, $translate);
+	public function addMessage(Conversation $conversation, User $author, $content) {
+		$msg = $this->writeMessage($conversation, $author, $content, 0);
 
 		return $msg;
 	}

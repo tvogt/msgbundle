@@ -12,13 +12,4 @@ class Conversation {
 		)->first();
 	}
 
-
-	public function getTopic() {
-		if ($this->getAppReference()) {
-			return $this->getAppReference()->getName();
-		} else {
-			return $this->topic;
-		}
-	}
-
 }

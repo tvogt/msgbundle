@@ -10,6 +10,7 @@ index:
  last:      last message
  msg:       by %sender% on %day% (%ts%)
  msgshort:  by %sender% on %day%
+ ref:       Conversations for %ref%:
 
 summary:
  title:		messages summary
@@ -27,6 +28,7 @@ conversation:
  title:		  Conversation
  new:
   title:		new conversation
+  title2:   New Conversation within %realm%
   label:    create a new conversation
   desc:     start a new topic and invite participants
  reply:

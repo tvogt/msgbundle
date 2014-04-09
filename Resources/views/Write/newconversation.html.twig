@@ -3,7 +3,12 @@
 {% form_theme form with 'BM2SiteBundle:Form:form_characterlist.html.twig' %}
 
 {% block content %}
-<h2>{{ 'conversation.new.title'|trans({}, "MsgBundle")|title }}</h2>
+<h2>
+	{% if realm %}
+		{{ 'conversation.new.title2'|trans({"%realm%":link(realm)}, "MsgBundle")|raw }}</h2>
+	{% else %}
+		{{ 'conversation.new.title'|trans({}, "MsgBundle")|title }}</h2>
+	{% endif %}
 {# TODO: translate #}
 <div id="insertbox">
 	<input id="realmsearch" placeholder="insert realm" />

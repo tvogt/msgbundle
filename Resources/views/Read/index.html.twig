@@ -19,7 +19,9 @@
 		{% endif %}
 	</td>
 	<td>
-		<button class="convo_leave" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+		{% if meta.conversation.appreference is null %}
+			<button class="convo_leave" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+		{% endif %}
 	</td>
 </tr>
 {% for conv in meta.conversation.children %}
@@ -36,7 +38,7 @@
 <h2>{{ 'index.title'|trans({}, "MsgBundle")|title }}</h2>
 
 <div id="ajax_errors"></div>
-
+{% set group = 0 %}
 <table class="cmsg_table">
 	<thead>
 		<tr>
@@ -46,10 +48,23 @@
 			<th>{{ 'index.participants'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
 			<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
+			<th style="width:12em"></th>{# FIXME: this is a kludge to prevent the buttons from wrapping #}
 		</tr>
 	</thead>
 	<tbody>
 		{% for metadata in conversations %}
+			{% if metadata.conversation.appreference != group %}
+				<tr>
+					<td colspan="7" class="cmsg_header">
+						<hr />
+						{% if metadata.conversation.appreference %}
+							{{ "index.ref"|trans({"%ref%":link(metadata.conversation.appreference)}, "MsgBundle")|raw }}
+							<a href="{{ path("cmsg_new_conversation_in_group", {"realm":metadata.conversation.appreference.id}) }}"><button>{{ 'conversation.new.label'|trans({}, "MsgBundle") }}</button></a>
+						{% endif %}
+					</td>
+				</tr>
+				{% set group = metadata.conversation.appreference %}
+			{% endif %}
 			{{ macros.conversationrow(metadata, 0) }}
 		{% endfor %}
 	</tbody>

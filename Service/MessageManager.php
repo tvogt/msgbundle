@@ -105,8 +105,9 @@ class MessageManager {
 
 		$conversation = $meta->getConversation();
 		foreach ($conversation->getChildren() as $child) {
-			$meta = $child->findMeta($user);
-			$ids = $this->leaveConversation($meta, $user, $ids);
+			if ($meta = $child->findMeta($user)) {
+				$ids = $this->leaveConversation($meta, $user, $ids);
+			}
 		}
 
 		// leaving is simply removing all my metadata		

@@ -11,7 +11,7 @@ class ConversationMetadata {
 	}
 
 	public function hasRightByName($name) {
-		return $this->rights->exists(function($key, $element) { return $element->getName() == $name || $element->getName() == 'owner'; } );
+		return $this->rights->exists(function($key, $element) use ($name) { return $element->getName() == $name || $element->getName() == 'owner'; } );
 	}
 
 }

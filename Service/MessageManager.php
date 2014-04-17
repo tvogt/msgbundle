@@ -63,7 +63,6 @@ class MessageManager {
 	}
 
 	public function getConversation(ConversationMetadata $m) {
-		// TODO: check if this works for multiple periods (I think it will)
 		$qb = $this->em->createQueryBuilder();
 		$qb->select('c, msg, meta')
 			->from('MsgBundle:Conversation', 'c')
@@ -72,13 +71,13 @@ class MessageManager {
 			->leftJoin('msg.metadata', 'meta')
 			->where('m = :m')->setParameter('m', $m)
 			->andWhere($qb->expr()->orX(
-				$qb->expr()->isNull('msg'),
+				$qb->expr()->isNull('msg.id'),
 				$qb->expr()->eq('msg.depth', 0),
 				$qb->expr()->gt('msg.ts', 'm.last_read')
 			))
 			->andWhere($qb->expr()->orX(
-				$qb->expr()->eq('meta.user', 'm.user'),
-				$qb->expr()->isNull('meta')
+				$qb->expr()->isNull('meta.id'),
+				$qb->expr()->eq('meta.user', 'm.user')
 		));
 
 		$qb->orderBy('msg.ts', 'ASC');
@@ -266,7 +265,7 @@ class MessageManager {
 		// set our recipients to be identical to the ones of the old conversation
 		$recipients = new ArrayCollection;
 		foreach ($source->getConversation()->getMetadata() as $m) {
-			if ($m->getUser() != $user) {
+			if ($m->getUser() != $author) {
 				$recipients->add($m->getUser());
 			}
 		}

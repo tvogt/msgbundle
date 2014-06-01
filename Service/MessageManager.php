@@ -4,7 +4,7 @@ namespace Calitarus\MessagingBundle\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
 

@@ -9,13 +9,13 @@
 	<td>
 		{% set msg = meta.conversation.messages.first %}
 		{% if msg %}
-			{{ 'index.msgshort'|trans({"%sender%":link(msg.sender.appuser), "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
+			{{ 'index.msgshort'|trans({"%sender%":msg.sender?link(msg.sender.appuser):'-', "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
 		{% endif %}
 	</td>
 	<td>
 		{% set msg = meta.conversation.messages.last %}
 		{% if msg %}
-			{{ 'index.msgshort'|trans({"%sender%":link(msg.sender.appuser), "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
+			{{ 'index.msgshort'|trans({"%sender%":msg.sender?link(msg.sender.appuser):'-', "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
 		{% endif %}
 	</td>
 	<td>

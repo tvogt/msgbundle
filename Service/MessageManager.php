@@ -154,6 +154,28 @@ class MessageManager {
 		$this->em->flush();
 	}
 
+	public function cleanupOldConversations($days_old=30) {
+		$now = time();
+		$max_age = $days_old*24*60*60;
+		$query = $this->em->createQuery("SELECT c, MAX(DATE_PART('epoch',m.ts)) as newest FROM MsgBundle:Conversation c JOIN c.messages m GROUP BY c");
+		$results = $query->getResult();
+		$old_conversations = 0;
+		$removed = 0;
+		foreach ($results as $row) {
+			$age = $now - $row['newest'];
+			if ($age > $max_age) {
+				$old_conversations++;
+				$conversation = $row[0];
+				if ($conversation->getChildren()->isEmpty()) {
+					$removed++;
+					$this->em->remove($conversation);
+				}
+			}
+		}
+		$this->em->flush();
+		return array($old_conversations, $removed);
+	}
+
 
 	public function getUnreadMessages(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
@@ -165,7 +187,6 @@ class MessageManager {
 		}
 		return $unread;
 	}
-
 
 
 

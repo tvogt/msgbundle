@@ -2,6 +2,9 @@
 
 namespace Calitarus\MessagingBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
+
 class User {
 
 	public function getName() {

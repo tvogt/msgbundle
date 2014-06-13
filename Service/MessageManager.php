@@ -157,7 +157,7 @@ class MessageManager {
 	public function cleanupOldConversations($days_old=30) {
 		$now = time();
 		$max_age = $days_old*24*60*60;
-		$query = $this->em->createQuery("SELECT c, MAX(DATE_PART('epoch',m.ts)) as newest FROM MsgBundle:Conversation c JOIN c.messages m GROUP BY c");
+		$query = $this->em->createQuery("SELECT c, MAX(DATE_PART('epoch',m.ts)) as newest FROM MsgBundle:Conversation c JOIN c.messages m WHERE c.app_reference IS NOT NULL GROUP BY c");
 		$results = $query->getResult();
 		$old_conversations = 0;
 		$removed = 0;
@@ -168,7 +168,7 @@ class MessageManager {
 				$conversation = $row[0];
 				if ($conversation->getChildren()->isEmpty()) {
 					$removed++;
-					$this->em->remove($conversation);
+					$conversation->setAppReference(null);
 				}
 			}
 		}
@@ -213,7 +213,7 @@ class MessageManager {
 		$meta->addRight($owner);
 
 		$conversation->addMetadata($meta);
-		$creator->addConversationsMetadata($meta);
+		$creator->addConversationsMetadatum($meta);
 		$this->em->persist($meta);
 
 		return array($meta, $conversation);
@@ -239,7 +239,7 @@ class MessageManager {
 				$meta->setConversation($conversation);
 				$meta->setUser($recipient);
 				$conversation->addMetadata($meta);
-				$recipient->addConversationsMetadata($meta);
+				$recipient->addConversationsMetadatum($meta);
 				$this->em->persist($meta);
 			}
 		}
@@ -323,7 +323,13 @@ class MessageManager {
 		$meta->setConversation($conversation);
 		$meta->setUser($participant);
 		$conversation->addMetadata($meta);
+/*
+	old logic: set nothing as read. more logical, but overwhelms new characters
 		$meta->setUnread($conversation->getMessages()->count());
+*/
+//	new logic: set nothing as unread.
+		$meta->setUnread(0);
+
 		$this->em->persist($meta);
 	}
 
@@ -332,7 +338,7 @@ class MessageManager {
 		if ($meta) {
 			// remove from conversation
 			$meta->getConversation()->removeMetadata($meta);
-			$meta->getUser()->removeConversationsMetadata($meta);
+			$meta->getUser()->removeConversationsMetadatum($meta);
 			$this->em->remove($meta);
 		}
 	}

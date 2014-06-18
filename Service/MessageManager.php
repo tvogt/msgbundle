@@ -115,6 +115,7 @@ class MessageManager {
 		foreach ($query->getResult() as $msg_meta) {
 			$this->em->remove($msg_meta);
 		}
+		// FIXME: This sometimes is a boolean? how?
 		$conversation->removeMetadata($meta);
 		$this->em->remove($meta);
 

@@ -189,6 +189,15 @@ class MessageManager {
 		return $unread;
 	}
 
+	public function getFlaggedMessages(User $user=null) {
+		if (!$user) { $user=$this->getCurrentUser(); }
+		$flagged = new ArrayCollection;
+
+		$query = $this->em->createQuery('SELECT m FROM MsgBundle:Message m JOIN m.metadata d JOIN d.flags f WHERE d.user = :me');
+		$query->setParameter('me', $user);
+
+		return $query->getResult();
+	}
 
 
 	/* creation methods */

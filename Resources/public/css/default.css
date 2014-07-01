@@ -28,9 +28,15 @@
 	opacity: 1.0;
 }
 
+.cmsg_message_header {
+	background-color: rgba(0,0,127,0.25);
+	padding: 0.25em;
+}
+
 .cmsg_message_meta {
 	background-color: rgba(0,0,127,0.2);
 	padding: 0.25em;
+	min-height: 1.8em;
 }
 
 .cmsg_message_meta ul {
@@ -46,6 +52,19 @@
 ul.cmsg_flags {
 	float: left;
 	margin-right: 2em;
+}
+
+ul.cmsg_flags li .cmsg_icon {
+	color: #888;
+	background-color: #eee;
+}
+ul.cmsg_flags li .cmsg_icon.active {
+	color: #000;
+	background-color: #ffc;
+}
+ul.cmsg_flags li .cmsg_icon.working {
+	color: #640;
+	background-color: #eed;
 }
 
 ul.cmsg_tags li:before {

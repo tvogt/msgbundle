@@ -4,6 +4,7 @@ namespace Calitarus\MessagingBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -11,6 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
+use Calitarus\MessagingBundle\Entity\MessageMetadata;
 use Calitarus\MessagingBundle\Entity\User;
 
 
@@ -46,10 +48,12 @@ class ReadController extends Controller {
 			}
 		}
 
+		// TODO: replace getFlaggedMessages() with countFlaggesMessages calls for performance
 		return array(
 			'total' => $total,
 			'new' => $new,
 			'unread' => $this->get('message_manager')->getUnreadMessages($user),
+			'flagged' => count($this->get('message_manager')->getFlaggedMessages($user)),
 			'local_news' => $this->get('news_manager')->getLocalList($user->getAppUser())
 		);
 	}
@@ -63,6 +67,19 @@ class ReadController extends Controller {
 		$user = $this->get('message_manager')->getCurrentUser();
 
 		return array('unread' => $this->get('message_manager')->getUnreadMessages($user));
+	}
+
+	/**
+		* @Route("/flagged", name="cmsg_flagged")
+		* @Template
+		*/
+	public function flaggedAction() {
+		$user = $this->get('message_manager')->getCurrentUser();
+
+		return array(
+			'user' => $user,
+			'flagged' => $this->get('message_manager')->getFlaggedMessages($user)
+		);
 	}
 
 	/**
@@ -138,4 +155,42 @@ class ReadController extends Controller {
 		return array('messages' => $messages, 'hide' => $source);
 	}
 
+
+	/**
+		* @Route("/flags", name="cmsg_flags")
+		* @Template
+		*/
+	public function flagsAction(Request $request) {
+		$user = $this->get('message_manager')->getCurrentUser();
+		$em = $this->getDoctrine()->getManager();
+
+		$message = $em->getRepository('MsgBundle:Message')->find($request->request->get('message'));
+		if (!$message) {
+			return new Response("message not found");
+		}
+		$flag = $em->getRepository('MsgBundle:Flag')->findOneByName($request->request->get('flag'));
+		if (!$flag) {
+			return new Response("flag not found");
+		}
+
+		$meta = $message->findMeta($user);
+		if (!$meta) {
+			$meta = new MessageMetadata;
+			$meta->setMessage($message);
+			$meta->setUser($user);
+			$meta->setScore(0);
+			$meta->setTags(array());
+			$em->persist($meta);
+		}
+
+		if ($meta->getFlags()->contains($flag)) {
+			$meta->removeFlag($flag);
+			$em->flush();
+			return new Response("removed");
+		} else {
+			$meta->addFlag($flag);
+			$em->flush();
+			return new Response("added");
+		}
+	}
 }

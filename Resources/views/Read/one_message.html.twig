@@ -1,11 +1,14 @@
 <div class="cmsg_message{% if last is defined and last is not null and last.timestamp > message.ts.timestamp %} cmsg_old{% endif %}" data-id="{{ message.id }}">
-	<div class="cmsg_message_meta">
+	<div class="cmsg_message_header">
 		{% if message.sender %}
 			{% set sender = link(message.sender.appuser) %}
 		{% else %}
 			{% set sender = "system" %}
 		{% endif %}
 		{{ 'index.msg'|trans({"%sender%":sender, "%day%":message.cycle|gametime("short"), "%ts%":message.ts|date}, "MsgBundle")|raw }}
+		{% if show_conversation is defined %}
+			{{ 'flagged.msg'|trans({"%url%":path("cmsg_conversation", {"meta":meta.id}), "%topic%":message.conversation.topic}, "MsgBundle")|raw }}
+		{% endif %}
 	</div>
 	{% if hide is defined %}
 		{% set related_messages = message.relatedtomeexcept(hide) %}
@@ -39,15 +42,16 @@
 			<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
 		</ul>
 		<ul class="cmsg_flags">
-			{# TODO: again we need the metadata - how? #}
-			<li><button class="cmsg_icon icon-star3" title="important" data-msg="{{ message.id }}" data-flag="important"></button></li>
-			<li><button class="cmsg_icon icon-lightning" title="act" data-msg="{{ message.id }}" data-flag="act"></button></li>
-			<li><button class="cmsg_icon icon-history" title="remind" data-msg="{{ message.id }}" data-flag="remind"></button></li>
-			<li><button class="cmsg_icon icon-drawer2" title="keep" data-msg="{{ message.id }}" data-flag="keep"></button></li>
+			{# TODO: translate #}
+			<li><button class="cmsg_icon icon-star3{% if meta.hasflagbyname("important") %} active{% endif %}" title="important" data-msg="{{ message.id }}" data-flag="important"></button></li>
+			<li><button class="cmsg_icon icon-lightning{% if meta.hasflagbyname("act") %} active{% endif %}" title="act" data-msg="{{ message.id }}" data-flag="act"></button></li>
+			<li><button class="cmsg_icon icon-history{% if meta.hasflagbyname("remind") %} active{% endif %}" title="remind" data-msg="{{ message.id }}" data-flag="remind"></button></li>
+			<li><button class="cmsg_icon icon-drawer2{% if meta.hasflagbyname("keep") %} active{% endif %}" title="keep" data-msg="{{ message.id }}" data-flag="keep"></button></li>
 		</ul>
 		<ul class="cmsg_tags">
-			{# TODO: again we need the metadata - how? #}
-			<li>these buttons don't do anything yet, sorry</li>
+			{% for tag in meta.tags %}
+				<li>{{ tag }}</li>
+			{% endfor %}
 		</ul>
 	</div>
 

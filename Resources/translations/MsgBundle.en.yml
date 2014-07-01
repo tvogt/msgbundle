@@ -19,10 +19,17 @@ summary:
  nonew:		You have no new messages.
  total:   You are participating in a total of %conversations% conversations.
  nototal: You are not participating in any conversations currently.
+ flagged: You have flagged %messages% messages.
+ noflagged: You have no flagged messages.
 
 unread:
  title:		your unread messages
  short:   unread messages
+
+flagged:
+ title:   your flagged messages
+ short:   flagged messages
+ msg:     in <a href="%url%">%topic%</a>
 
 conversation:
  title:		  Conversation

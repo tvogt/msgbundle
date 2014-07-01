@@ -16,6 +16,17 @@
 				{{ 'summary.nototal'|trans({}, "MsgBundle") }}
 			</li>
 		{% endif %}
+		{% if flagged > 0 %}
+			<li>
+				<a href="{{ path('cmsg_flagged') }}">{{ 'flagged.title'|trans({}, "MsgBundle") }}</a>
+				{{ 'summary.flagged'|trans({"%messages%":flagged}, "MsgBundle") }}
+			</li>
+		{% else %}
+			<li class="disabled">
+				<span class="nolink">{{ 'flagged.title'|trans({}, "MsgBundle") }}</span>
+				{{ 'summary.noflagged'|trans({}, "MsgBundle") }}
+			</li>
+		{% endif %}
 		<li>
 			<a href="{{ path('cmsg_new_conversation') }}">{{ 'conversation.new.label'|trans({}, "MsgBundle") }}</a>
 			{{ 'conversation.new.desc'|trans({}, "MsgBundle") }}

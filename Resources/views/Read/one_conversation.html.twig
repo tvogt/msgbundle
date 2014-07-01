@@ -54,7 +54,7 @@
 			</div>
 			{% set in_hidden = false %}
 		{% endif %}
-		{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":msg} only %}
+		{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":msg, "meta":msg.findmeta(meta.user)} only %}
 	{% endfor %}
 	{% if in_hidden == true %}
 		</div>

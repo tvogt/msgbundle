@@ -95,3 +95,9 @@ button:
  reply:   reply
  split:   split
  show:    show here
+
+flag:
+ important:   important
+ act:         action required
+ remind:      remind later
+ keep:        keep/archive

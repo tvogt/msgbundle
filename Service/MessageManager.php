@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
+use Monolog\Logger;
 
 
 use BM2\SiteBundle\Service\AppState;
@@ -26,12 +27,14 @@ class MessageManager {
 
 	protected $em;
 	protected $appstate;
+	protected $logger;
 
 	protected $user = null;
 
-	public function __construct(EntityManager $em, AppState $appstate) {
+	public function __construct(EntityManager $em, AppState $appstate, Logger $logger) {
 		$this->em = $em;
 		$this->appstate = $appstate;
+		$this->logger = $logger;
 	}
 
 	public function getMsgUser(Character $char) {
@@ -104,8 +107,8 @@ class MessageManager {
 
 		$conversation = $meta->getConversation();
 		foreach ($conversation->getChildren() as $child) {
-			if ($meta = $child->findMeta($user)) {
-				$ids = $this->leaveConversation($meta, $user, $ids);
+			if ($child_meta = $child->findMeta($user)) {
+				$ids = $this->leaveConversation($child_meta, $user, $ids);
 			}
 		}
 
@@ -115,21 +118,33 @@ class MessageManager {
 		foreach ($query->getResult() as $msg_meta) {
 			$this->em->remove($msg_meta);
 		}
-		// FIXME: This sometimes is a boolean? how?
 		$conversation->removeMetadata($meta);
 		$this->em->remove($meta);
 
 		// if the conversation has no participants left, we can remove it:
 		if ($conversation->getMetadata()->count() == 0) {
-			// just remove the conversation, cascading should take care of all the messages and metadata
-			$this->em->remove($conversation);
+			$this->removeConversation($conversation);
 		}
 
 		return $ids;
 	}
 
+	private function removeConversation(Conversation $conversation) {
+		// just remove the conversation, cascading should take care of all the messages and metadata
+		foreach ($conversation->getChildren() as $child) {
+			// parent inherits our children, or if parent doesn't exist, this also sets their parent to null
+			$child->setParent($conversation->getParent());
+		}
+		if ($conversation->getParent()) {
+			$conversation->getParent()->removeChild($conversation);
+			$conversation->setParent(null);			
+		}
+		$this->em->remove($conversation);
+	}
+
 	// this method is intended for things like a user deleting, etc.
 	public function leaveAllConversations(User $user) {
+		$this->logger->debug('User '.$user->getId().' leaving all conversations');
 		$query = $this->em->createQuery('DELETE FROM MsgBundle:MessageMetadata m WHERE m.user = :me');
 		$query->setParameter('me', $user);
 		$query->execute();
@@ -144,12 +159,15 @@ class MessageManager {
 	}
 
 	public function removeAbandonedConversations() {
+		$this->logger->debug('removing abandoned conversations...');
 		$query = $this->em->createQuery('SELECT c,count(m) as participants FROM MsgBundle:Conversation c LEFT JOIN c.metadata m GROUP BY c');
 		$results = $query->getResult();
 
 		foreach ($results as $row) {
 			if ($row['participants'] == 0) {
-				$this->em->remove($row[0]);
+				if ($row[0]->getChildren()->isEmpty()) {
+					$this->removeConversation($row[0]);
+				}
 			}
 		}
 		$this->em->flush();

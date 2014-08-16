@@ -41,17 +41,19 @@
 			<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
 			<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
 		</ul>
+		{% if meta %}
 		<ul class="cmsg_flags">
 			<li><button class="cmsg_icon icon-star3{% if meta.hasflagbyname("important") %} active{% endif %}" title="{{ 'flag.important'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="important"></button></li>
 			<li><button class="cmsg_icon icon-lightning{% if meta.hasflagbyname("act") %} active{% endif %}" title="{{ 'flag.act'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="act"></button></li>
 			<li><button class="cmsg_icon icon-history{% if meta.hasflagbyname("remind") %} active{% endif %}" title="{{ 'flag.remind'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="remind"></button></li>
 			<li><button class="cmsg_icon icon-drawer2{% if meta.hasflagbyname("keep") %} active{% endif %}" title="{{ 'flag.keep'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="keep"></button></li>
-		</ul>
+		</ul>	
 		<ul class="cmsg_tags">
 			{% for tag in meta.tags %}
 				<li>{{ tag }}</li>
 			{% endfor %}
 		</ul>
+		{% endif %}
 	</div>
 
 	{% if hide is defined %}

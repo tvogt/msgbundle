@@ -7,7 +7,9 @@
 		 class="tt" title="{% for m in conversation.metadata %}{{ m.user.name }}{% if loop.last == false %}, {% endif %}{% endfor %}" 
 		 {% endif %}>{{ 'conversation.participants.label'|trans({"%count%":participantscount}, "MsgBundle") }}</a>
 
-		{# TODO: have a button to leave the conversation here as well, but that can't be done easily by ajax, so... #}
+		{% if conversation.appreference is null %}
+			<button class="convo_leave" data-id="{{ meta.id }}" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+		{% endif %}
 	</div>
 {% endmacro %}
 

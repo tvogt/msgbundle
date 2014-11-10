@@ -118,7 +118,7 @@ class MessageManager {
 		foreach ($query->getResult() as $msg_meta) {
 			$this->em->remove($msg_meta);
 		}
-		$conversation->removeMetadata($meta);
+		$conversation->removeMetadatum($meta);
 		$this->em->remove($meta);
 
 		// if the conversation has no participants left, we can remove it:
@@ -240,7 +240,7 @@ class MessageManager {
 		$owner = $this->em->getRepository('MsgBundle:Right')->findOneByName('owner');
 		$meta->addRight($owner);
 
-		$conversation->addMetadata($meta);
+		$conversation->addMetadatum($meta);
 		$creator->addConversationsMetadatum($meta);
 		$this->em->persist($meta);
 
@@ -266,7 +266,7 @@ class MessageManager {
 				$meta->setUnread(0);
 				$meta->setConversation($conversation);
 				$meta->setUser($recipient);
-				$conversation->addMetadata($meta);
+				$conversation->addMetadatum($meta);
 				$recipient->addConversationsMetadatum($meta);
 				$this->em->persist($meta);
 			}
@@ -350,7 +350,7 @@ class MessageManager {
 		$meta = new ConversationMetadata;
 		$meta->setConversation($conversation);
 		$meta->setUser($participant);
-		$conversation->addMetadata($meta);
+		$conversation->addMetadatum($meta);
 /*
 	old logic: set nothing as read. more logical, but overwhelms new characters
 		$meta->setUnread($conversation->getMessages()->count());
@@ -365,7 +365,7 @@ class MessageManager {
 		$meta = $conversation->findMeta($participant);
 		if ($meta) {
 			// remove from conversation
-			$meta->getConversation()->removeMetadata($meta);
+			$meta->getConversation()->removeMetadatum($meta);
 			$meta->getUser()->removeConversationsMetadatum($meta);
 			$this->em->remove($meta);
 		}

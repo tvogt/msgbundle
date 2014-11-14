@@ -225,7 +225,7 @@ class MessageManager {
 		$conversation->setTopic($topic);
 		if ($parent) {
 			$conversation->setParent($parent);
-			$parent->addChildren($conversation);
+			$parent->addChild($conversation);
 		}
 		if ($realm) {
 			$conversation->setAppReference($realm);

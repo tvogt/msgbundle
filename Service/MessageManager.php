@@ -222,6 +222,7 @@ class MessageManager {
 	
 	public function createConversation(User $creator, $topic, Conversation $parent=null, Realm $realm=null) {
 		$conversation = new Conversation;
+		if (!$topic) { $topic=""; }
 		$conversation->setTopic($topic);
 		if ($parent) {
 			$conversation->setParent($parent);

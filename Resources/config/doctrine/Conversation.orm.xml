@@ -20,7 +20,7 @@
 			<cascade><cascade-remove /></cascade>
 		</one-to-many>
 
-		<many-to-one field="app_reference" target-entity="BM2\SiteBundle\Entity\Realm"/>
+		<many-to-one field="app_reference" target-entity="BM2\SiteBundle\Entity\Realm" inversed-by="conversations"/>
 
 	</entity>
 </doctrine-mapping>

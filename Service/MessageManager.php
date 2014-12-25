@@ -394,6 +394,7 @@ class MessageManager {
 					if (!$participants->contains($user)) {
 						// this user is missing from the conversation, but should be there
 						$this->addParticipant($conversation, $user);
+						$participants->add($user); // make sure we don't add anyone twice
 						$added++;
 					}
 				}
@@ -402,6 +403,7 @@ class MessageManager {
 					if (!$users->contains($part)) {
 						// this user is in the conversation, but shouldn't - remove him
 						$this->removeParticipant($conversation, $part);
+						$participants->removeElement($part);
 						$removed++;
 					}
 				}

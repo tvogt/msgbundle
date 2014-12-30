@@ -74,6 +74,10 @@ message:
   title:		Reply to Message
   submit:	  send reply
  new:       new
+ response:  in response to:
+ responses: responses
+ from:      message from
+ fromshort: from
 
 participants:
  title:     Conversation Participants

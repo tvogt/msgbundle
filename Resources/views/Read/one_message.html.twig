@@ -16,13 +16,12 @@
 		{% set related_messages = message.relatedtome %}
 	{% endif %}
 	{% if related_messages is not empty %}
-		{# FIXME: some strings here still need translation #}
 		{# TODO: under some conditions, we want to show them right away (say, positive score, or flagged important, or whatever) #}
 		<div class="cmsg_related">
-		in response to: <button class="show" data-type="source">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		{{ 'message.response'|trans({},"MsgBundle") }} <button class="show" data-type="source">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
-			<li>message from {{ related.source.sender.name }} ({{ related.source.ts|date }})</li>
+			<li>{{ 'message.from'|trans({},"MsgBundle") }} {{ related.source.sender.name }} ({{ related.source.ts|date }})</li>
 			{# TODO: if in a different conversation add something like (in "other topic name") with a link #}
 		{% endfor %}
 		</ul></div>
@@ -63,13 +62,13 @@
 	{% endif %}
 	{% if message.relatedmessages is not empty %}
 		<div class="cmsg_related">
-		responses: <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		{{ 'message.responses'|trans({},"MsgBundle") }} <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
 			{% if last is defined and last is not null and last.timestamp > message.ts.timestamp and last.timestamp < related.target.ts.timestamp %}
 				<li>{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target} only %}</li>
 			{% else %}
-				<li>from {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
+				<li>{{ 'message.fromshort'|trans({},"MsgBundle") }} {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
 			{% endif %}
 		{% endfor %}
 		</ul>

@@ -147,7 +147,7 @@ class WriteController extends Controller {
 				$message = $this->get('message_manager')->addMessage($meta->getConversation(), $user, $data['content']);
 			}
 			$em->flush();
-			return array('message' => $message);
+			return array('message' => $message, 'user'=>$user);
 		}
 
 		return array(

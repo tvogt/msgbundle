@@ -129,7 +129,7 @@ class NewConversationType extends AbstractType {
 			}
 		}
 
-		$builder->add('submit', 'submit', array('label'=>'conversation.create'));
+		$builder->add('submit', 'submit', array('label'=>'conversation.create', 'attr'=>array('class'=>'cmsg_button')));
 	}
 
 

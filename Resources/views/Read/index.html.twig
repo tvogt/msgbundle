@@ -20,7 +20,7 @@
 	</td>
 	<td>
 		{% if meta.conversation.appreference is null %}
-			<button class="convo_leave" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+			<button class="convo_leave cmsg_button" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
 		{% endif %}
 	</td>
 </tr>
@@ -59,7 +59,7 @@
 						<hr />
 						{% if metadata.conversation.appreference %}
 							{{ "index.ref"|trans({"%ref%":link(metadata.conversation.appreference)}, "MsgBundle")|raw }}
-							<a href="{{ path("cmsg_new_conversation_in_group", {"realm":metadata.conversation.appreference.id}) }}"><button>{{ 'conversation.new.label'|trans({}, "MsgBundle") }}</button></a>
+							<a href="{{ path("cmsg_new_conversation_in_group", {"realm":metadata.conversation.appreference.id}) }}"><button class="cmsg_button">{{ 'conversation.new.label'|trans({}, "MsgBundle") }}</button></a>
 						{% endif %}
 					</td>
 				</tr>

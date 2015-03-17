@@ -6,7 +6,7 @@
 {% include "MsgBundle:Read:one_conversation.html.twig" with {"meta": meta, "conversation":data[0]} %}
 
 <div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
-	<button id="syntaxhelp">syntax help</button>
+	<button id="syntaxhelp" class="cmsg_button">syntax help</button>
 	<div id="help" style="display:none">
 		You can use <a href="http://daringfireball.net/projects/markdown/syntax">markdown syntax</a>:
 		<ul class="simple">
@@ -17,13 +17,6 @@
 			<li><strong>**strong emphasis**</strong></li>
 			<li>make lists by beginning each line with a single *<li>
 			<li>...or numbered lists by using 1. 2. 3.<li>
-		</ul>
-		In addition, you can link to entities within the game if you know their ID number (and soon we will have a better way to inserting them):
-		<ul class="simple">
-			<li>link to a realm: [realm:123]</li>
-			<li>link to a character: [character:123] or [noble:123]</li>
-			<li>link to a settlement: [settlement:123] or [estate:123]</li>
-			<li>or just use the first letter, so [r:123] will link to a realm, [e:123] to a settlement, etc.</li>
 		</ul>
 	</div>
 	{{ render(controller('MsgBundle:Write:reply')) }}
@@ -98,7 +91,7 @@ var insert = null;
 
 $("#replydialog").dialog({
 	autoOpen: false,
-	width: "50%",
+	width: "65%",
 	position: { my: "center top", at: "center bottom", of: $("#symfony-header") }
 });
 
@@ -160,7 +153,7 @@ $(".cmsg_conversation").on("click", "button.show", function(){
 	var target = $(this).parent();
 	// fire off the request
 	request = $.ajax({
-		url: "{{ path('cmsg_related') }}",
+		url: "{{ path('cmsg_related', {'meta':meta.id}) }}",
 		type: "get",
 		data: { 'id': id, 'type': type },
 	});

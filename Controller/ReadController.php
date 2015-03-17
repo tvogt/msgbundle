@@ -125,13 +125,15 @@ class ReadController extends Controller {
 
 
 	/**
-		* @Route("/related", name="cmsg_related")
+		* @Route("/related/{meta}", name="cmsg_related", requirements={"meta"="\d+"})
 		* @Template
 		*/
-	public function relatedAction(Request $request) {
+	public function relatedAction(ConversationMetadata $meta, Request $request) {
 		$user = $this->get('message_manager')->getCurrentUser();
 
-		/* TODO: check access rights */
+		if ($meta->getUser() != $user) {
+			throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+		}
 
 		$id = $request->query->get('id');
 		$type = $request->query->get('type');
@@ -152,7 +154,7 @@ class ReadController extends Controller {
 
 		// TODO: modify the counter on the conversation now that we're showing the messages... - but for that we might have to know not only how many, but also which messages are unread...
 
-		return array('messages' => $messages, 'hide' => $source);
+		return array('user' => $user, 'messages' => $messages, 'hide' => $source);
 	}
 
 

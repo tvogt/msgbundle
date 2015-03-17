@@ -1,7 +1,7 @@
 {% if plain is defined %}
 	{{ plain }}
 {% elseif message is defined %}
-	{% include "MsgBundle:Read:one_message.html.twig" with {"last":null, "message":message} only %}
+	{% include "MsgBundle:Read:one_message.html.twig" with {"meta":message.findmeta(user), "last":null, "message":message} only %}
 {% else %}
 	{# TODO: translate #}
 	<div id="insertbox">

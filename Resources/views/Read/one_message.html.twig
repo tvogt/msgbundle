@@ -18,7 +18,7 @@
 	{% if related_messages is not empty %}
 		{# TODO: under some conditions, we want to show them right away (say, positive score, or flagged important, or whatever) #}
 		<div class="cmsg_related">
-		{{ 'message.response'|trans({},"MsgBundle") }} <button class="show" data-type="source">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		{{ 'message.response'|trans({},"MsgBundle") }} <button class="show cmsg_button" data-type="source">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
 			<li>{{ 'message.from'|trans({},"MsgBundle") }} {{ related.source.sender.name }} ({{ related.source.ts|date }})</li>
@@ -37,8 +37,8 @@
 			{% if last is defined and last is not null and last.timestamp < message.ts.timestamp %}
 				<li>{{ 'message.new'|trans({},"MsgBundle") }}</li>
 			{% endif %}
-			<li><button class="reply">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
-			<li><button class="split">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
+			<li><button class="reply cmsg_button">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
+			<li><button class="split cmsg_button">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
 		</ul>
 		{% if meta %}
 		<ul class="cmsg_flags">
@@ -62,11 +62,16 @@
 	{% endif %}
 	{% if message.relatedmessages is not empty %}
 		<div class="cmsg_related">
-		{{ 'message.responses'|trans({},"MsgBundle") }} <button class="show" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
+		{{ 'message.responses'|trans({},"MsgBundle") }} <button class="show cmsg_button" data-type="target">{{ 'button.show'|trans({},"MsgBundle") }}</button>
 		<ul class="cmsg_related_list">
 		{% for related in related_messages %}
 			{% if last is defined and last is not null and last.timestamp > message.ts.timestamp and last.timestamp < related.target.ts.timestamp %}
-				<li>{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target} only %}</li>
+				<li>
+					{% if meta %}
+						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":related.target.findmeta(meta.user)} only %}</li>
+					{% else %}
+						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":false} only %}</li>
+					{% endif %}
 			{% else %}
 				<li>{{ 'message.fromshort'|trans({},"MsgBundle") }} {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
 			{% endif %}

@@ -1,14 +1,14 @@
 {% set participantscount = conversation.metadata.count %}
 {% macro general(meta, conversation, participantscount) %}
 	<div class="cmsg_general">
-		<button class="topicreply" data-id="{{ meta.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
+		<button class="topicreply cmsg_button" data-id="{{ meta.id }}">{{ 'conversation.reply.label'|trans({}, "MsgBundle")|title }}</button>
 
 		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}"{% if participantscount < 5 %}
 		 class="tt" title="{% for m in conversation.metadata %}{{ m.user.name }}{% if loop.last == false %}, {% endif %}{% endfor %}" 
 		 {% endif %}>{{ 'conversation.participants.label'|trans({"%count%":participantscount}, "MsgBundle") }}</a>
 
 		{% if conversation.appreference is null %}
-			<button class="convo_leave" data-id="{{ meta.id }}" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
+			<button class="convo_leave cmsg_button" data-id="{{ meta.id }}" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>
 		{% endif %}
 	</div>
 {% endmacro %}
@@ -49,7 +49,7 @@
 	{% set in_hidden = false %}
 	{% for msg in conversation.messages %}
 		{% if in_hidden == false and msg.ts < veryold %}
-			<button id="hidetoggle">{{ 'conversation.old.show'|trans({},"MsgBundle") }}</button>
+			<button id="hidetoggle" class="cmsg_button">{{ 'conversation.old.show'|trans({},"MsgBundle") }}</button>
 			<div id="oldmessages">
 			{% set in_hidden = true %}
 		{% elseif in_hidden == true and msg.ts > veryold %}

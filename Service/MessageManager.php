@@ -3,9 +3,6 @@
 namespace Calitarus\MessagingBundle\Service;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Collections\Criteria;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Monolog\Logger;
 
@@ -17,7 +14,6 @@ use BM2\SiteBundle\Entity\Realm;
 use Calitarus\MessagingBundle\Entity\Conversation;
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 use Calitarus\MessagingBundle\Entity\Message;
-use Calitarus\MessagingBundle\Entity\MessageMetadata;
 use Calitarus\MessagingBundle\Entity\MessageRelation;
 use Calitarus\MessagingBundle\Entity\User;
 use Calitarus\MessagingBundle\Entity\Right;
@@ -209,7 +205,6 @@ class MessageManager {
 
 	public function getFlaggedMessages(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
-		$flagged = new ArrayCollection;
 
 		$query = $this->em->createQuery('SELECT m FROM MsgBundle:Message m JOIN m.metadata d JOIN d.flags f WHERE d.user = :me');
 		$query->setParameter('me', $user);

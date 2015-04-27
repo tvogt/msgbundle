@@ -5,7 +5,7 @@ namespace Calitarus\MessagingBundle\Entity;
 class MessageMetadata {
 
 	public function hasFlag(Flag $right) {
-		return ($this->flags->contains($flag));
+		return ($this->flags->contains($right));
 	}
 
 	public function hasFlagByName($name) {

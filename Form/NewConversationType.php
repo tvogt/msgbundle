@@ -7,8 +7,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Doctrine\ORM\EntityRepository;
 
-use BM2\SiteBundle\Form\InteractionType;
-
 
 class NewConversationType extends AbstractType {
 
@@ -114,7 +112,6 @@ class NewConversationType extends AbstractType {
 					'expanded'=>true,
 					'label' => 'conversation.recipients.label',
 					'empty_value' => 'conversation.recipients.empty',
-					'label' => 'conversation.recipients.label',
 					'class' => 'BM2SiteBundle:Character',
 					'property' => 'name',
 					'query_builder'=>function(EntityRepository $er) use ($recipients) {

@@ -4,31 +4,33 @@ namespace Calitarus\MessagingBundle\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\ArrayCollection;
+use Monolog\Logger;
 
 
 use BM2\SiteBundle\Service\AppState;
 use BM2\SiteBundle\Entity\Character;
+use BM2\SiteBundle\Entity\Realm;
 
 use Calitarus\MessagingBundle\Entity\Conversation;
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 use Calitarus\MessagingBundle\Entity\Message;
-use Calitarus\MessagingBundle\Entity\MessageMetadata;
 use Calitarus\MessagingBundle\Entity\MessageRelation;
 use Calitarus\MessagingBundle\Entity\User;
 use Calitarus\MessagingBundle\Entity\Right;
-use Calitarus\MessagingBundle\Entity\Timespan;
 
 
 class MessageManager {
 
 	protected $em;
 	protected $appstate;
+	protected $logger;
 
 	protected $user = null;
 
-	public function __construct(EntityManager $em, AppState $appstate) {
+	public function __construct(EntityManager $em, AppState $appstate, Logger $logger) {
 		$this->em = $em;
 		$this->appstate = $appstate;
+		$this->logger = $logger;
 	}
 
 	public function getMsgUser(Character $char) {
@@ -51,15 +53,6 @@ class MessageManager {
 		return $this->user;
 	}
 
-	public function findTopics(User $user=null) {
-		if (!$user) { $user=$this->getCurrentUser(); }
-
-		$query = $this->em->createQuery('SELECT c FROM MsgBundle:Conversation c JOIN c.metadata m JOIN m.user u WHERE c.parent IS NULL and u = :me');
-		$query->setParameter('me', $user);
-		return $query->getResult();
-	}
-
-
 	public function getContactsList(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
@@ -69,7 +62,6 @@ class MessageManager {
 	}
 
 	public function getConversation(ConversationMetadata $m) {
-		// TODO: check if this works for multiple periods (I think it will)
 		$qb = $this->em->createQueryBuilder();
 		$qb->select('c, msg, meta')
 			->from('MsgBundle:Conversation', 'c')
@@ -78,30 +70,14 @@ class MessageManager {
 			->leftJoin('msg.metadata', 'meta')
 			->where('m = :m')->setParameter('m', $m)
 			->andWhere($qb->expr()->orX(
-				$qb->expr()->isNull('msg'),
+				$qb->expr()->isNull('msg.id'),
 				$qb->expr()->eq('msg.depth', 0),
 				$qb->expr()->gt('msg.ts', 'm.last_read')
 			))
 			->andWhere($qb->expr()->orX(
-				$qb->expr()->eq('meta.user', 'm.user'),
-				$qb->expr()->isNull('meta')
-			));
-
-		// add time-based restriction:
-		$qb->leftJoin('m.timespans', 't')
-			->andWhere($qb->expr()->orX(
-				$qb->expr()->isNull('t'),
-				$qb->expr()->andX(
-					$qb->expr()->orX(
-						$qb->expr()->isNull('t.access_from'),
-						$qb->expr()->gte('msg.ts', 't.access_from')
-					),
-					$qb->expr()->orX(
-						$qb->expr()->isNull('t.access_until'),
-						$qb->expr()->lte('msg.ts', 't.access_until')
-					)
-				)
-			));
+				$qb->expr()->isNull('meta.id'),
+				$qb->expr()->eq('meta.user', 'm.user')
+		));
 
 		$qb->orderBy('msg.ts', 'ASC');
 		$query = $qb->getQuery();
@@ -116,7 +92,7 @@ class MessageManager {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
 		/* TODO: this should be sorted by the last message posted to the conversation */
-		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL');
+		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me AND c.parent IS NULL ORDER BY c.app_reference ASC');
 		$query->setParameter('me', $user);
 		return $query->getResult();
 	}
@@ -127,8 +103,9 @@ class MessageManager {
 
 		$conversation = $meta->getConversation();
 		foreach ($conversation->getChildren() as $child) {
-			$meta = $child->findMeta($user);
-			$ids = $this->leaveConversation($meta, $user, $ids);
+			if ($child_meta = $child->findMeta($user)) {
+				$ids = $this->leaveConversation($child_meta, $user, $ids);
+			}
 		}
 
 		// leaving is simply removing all my metadata		
@@ -137,20 +114,33 @@ class MessageManager {
 		foreach ($query->getResult() as $msg_meta) {
 			$this->em->remove($msg_meta);
 		}
-		$conversation->removeMetadata($meta);
+		$conversation->removeMetadatum($meta);
 		$this->em->remove($meta);
 
 		// if the conversation has no participants left, we can remove it:
 		if ($conversation->getMetadata()->count() == 0) {
-			// just remove the conversation, cascading should take care of all the messages and metadata
-			$this->em->remove($conversation);
+			$this->removeConversation($conversation);
 		}
 
 		return $ids;
 	}
 
+	private function removeConversation(Conversation $conversation) {
+		// just remove the conversation, cascading should take care of all the messages and metadata
+		foreach ($conversation->getChildren() as $child) {
+			// parent inherits our children, or if parent doesn't exist, this also sets their parent to null
+			$child->setParent($conversation->getParent());
+		}
+		if ($conversation->getParent()) {
+			$conversation->getParent()->removeChild($conversation);
+			$conversation->setParent(null);			
+		}
+		$this->em->remove($conversation);
+	}
+
 	// this method is intended for things like a user deleting, etc.
 	public function leaveAllConversations(User $user) {
+		$this->logger->debug('User '.$user->getId().' leaving all conversations');
 		$query = $this->em->createQuery('DELETE FROM MsgBundle:MessageMetadata m WHERE m.user = :me');
 		$query->setParameter('me', $user);
 		$query->execute();
@@ -165,15 +155,40 @@ class MessageManager {
 	}
 
 	public function removeAbandonedConversations() {
+		$this->logger->debug('removing abandoned conversations...');
 		$query = $this->em->createQuery('SELECT c,count(m) as participants FROM MsgBundle:Conversation c LEFT JOIN c.metadata m GROUP BY c');
 		$results = $query->getResult();
 
 		foreach ($results as $row) {
 			if ($row['participants'] == 0) {
-				$this->em->remove($row[0]);
+				if ($row[0]->getChildren()->isEmpty()) {
+					$this->removeConversation($row[0]);
+				}
 			}
 		}
 		$this->em->flush();
+	}
+
+	public function cleanupOldConversations($days_old=30) {
+		$now = time();
+		$max_age = $days_old*24*60*60;
+		$query = $this->em->createQuery("SELECT c, MAX(DATE_PART('epoch',m.ts)) as newest FROM MsgBundle:Conversation c JOIN c.messages m WHERE c.app_reference IS NOT NULL GROUP BY c");
+		$results = $query->getResult();
+		$old_conversations = 0;
+		$removed = 0;
+		foreach ($results as $row) {
+			$age = $now - $row['newest'];
+			if ($age > $max_age) {
+				$old_conversations++;
+				$conversation = $row[0];
+				if ($conversation->getChildren()->isEmpty()) {
+					$removed++;
+					$conversation->setAppReference(null);
+				}
+			}
+		}
+		$this->em->flush();
+		return array($old_conversations, $removed);
 	}
 
 
@@ -188,17 +203,28 @@ class MessageManager {
 		return $unread;
 	}
 
+	public function getFlaggedMessages(User $user=null) {
+		if (!$user) { $user=$this->getCurrentUser(); }
 
+		$query = $this->em->createQuery('SELECT m FROM MsgBundle:Message m JOIN m.metadata d JOIN d.flags f WHERE d.user = :me');
+		$query->setParameter('me', $user);
+
+		return $query->getResult();
+	}
 
 
 	/* creation methods */
 	
-	public function createConversation(User $creator, $topic, Conversation $parent=null) {
+	public function createConversation(User $creator, $topic, Conversation $parent=null, Realm $realm=null) {
 		$conversation = new Conversation;
+		if (!$topic) { $topic=""; }
 		$conversation->setTopic($topic);
 		if ($parent) {
 			$conversation->setParent($parent);
-			$parent->addChildren($conversation);
+			$parent->addChild($conversation);
+		}
+		if ($realm) {
+			$conversation->setAppReference($realm);
 		}
 		$this->em->persist($conversation);
 
@@ -210,14 +236,25 @@ class MessageManager {
 		$owner = $this->em->getRepository('MsgBundle:Right')->findOneByName('owner');
 		$meta->addRight($owner);
 
-		$conversation->addMetadata($meta);
+		$conversation->addMetadatum($meta);
+		$creator->addConversationsMetadatum($meta);
 		$this->em->persist($meta);
 
 		return array($meta, $conversation);
 	}
 
-	public function newConversation(User $creator, $recipients, $topic, $content, $translate=false, Conversation $parent=null) {
-		list($creator_meta, $conversation) = $this->createConversation($creator, $topic, $parent);
+	public function newConversation(User $creator, $recipients, $topic, $content, Conversation $parent=null, Realm $realm=null) {
+		list($creator_meta, $conversation) = $this->createConversation($creator, $topic, $parent, $realm);
+
+		if ($realm) {
+			$members = array();
+			foreach ($realm->findMembers() as $m) {
+				$members[] = $m->getId();
+			}
+			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
+			$query->setParameter('members', $members);
+			$recipients = $query->getResult();
+		}
 
 		foreach ($recipients as $recipient) {
 			if ($recipient != $creator) { // because he has already been added above
@@ -225,17 +262,18 @@ class MessageManager {
 				$meta->setUnread(0);
 				$meta->setConversation($conversation);
 				$meta->setUser($recipient);
-				$conversation->addMetadata($meta);
+				$conversation->addMetadatum($meta);
+				$recipient->addConversationsMetadatum($meta);
 				$this->em->persist($meta);
 			}
 		}
 
-		$message = $this->writeMessage($conversation, $creator, $content, 0, $translate);
+		$message = $this->writeMessage($conversation, $creator, $content, 0);
 		$this->em->flush();
 		return array($creator_meta,$message);
 	}
 
-	public function writeMessage(Conversation $conversation, User $author, $content, $depth=0, $translate=false) {
+	public function writeMessage(Conversation $conversation, User $author=null, $content="(empty)", $depth=0) {
 		$msg = new Message;
 		$msg->setSender($author);
 		$msg->setContent($content);
@@ -243,8 +281,8 @@ class MessageManager {
 		$msg->setTs(new \DateTime("now"));
 		$msg->setCycle($this->appstate->getCycle());
 		$msg->setDepth($depth);
-		$msg->setTranslate($translate);
 		$this->em->persist($msg);
+		$conversation->addMessage($msg);
 
 		// now increment the unread counter for everyone except the author
 		foreach ($conversation->getMetadata() as $reader) {
@@ -256,8 +294,8 @@ class MessageManager {
 		return $msg;
 	}
 
-	public function writeReply(Message $source, User $author, $content, $translate=false) {
-		$msg = $this->writeMessage($source->getConversation(), $author, $content, $source->getDepth()+1, $translate);
+	public function writeReply(Message $source, User $author, $content) {
+		$msg = $this->writeMessage($source->getConversation(), $author, $content, $source->getDepth()+1);
 
 		$rel = new MessageRelation;
 		$rel->setType('response');
@@ -268,7 +306,7 @@ class MessageManager {
 		return $msg;
 	}
 
-	public function writeSplit(Message $source, User $author, $topic, $content, $translate=false) {
+	public function writeSplit(Message $source, User $author, $topic, $content) {
 		// set our recipients to be identical to the ones of the old conversation
 		$recipients = new ArrayCollection;
 		foreach ($source->getConversation()->getMetadata() as $m) {
@@ -277,7 +315,7 @@ class MessageManager {
 			}
 		}
 
-		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $translate, $source->getConversation());
+		list($meta,$msg) = $this->newConversation($author, $recipients, $topic, $content, $source->getConversation());
 
 		// inherit app_reference
 		if ($ref = $source->getConversation()->getAppReference()) {
@@ -294,8 +332,8 @@ class MessageManager {
 	}
 
 
-	public function addMessage(Conversation $conversation, User $author, $content, $translate=false) {
-		$msg = $this->writeMessage($conversation, $author, $content, 0, $translate);
+	public function addMessage(Conversation $conversation, User $author, $content) {
+		$msg = $this->writeMessage($conversation, $author, $content, 0);
 
 		return $msg;
 	}
@@ -304,51 +342,28 @@ class MessageManager {
 	/* management methods */
 	
 	// you might want to change $time_limit to false if you don't use it or only rarely.
-	public function addParticipant(Conversation $conversation, User $participant, $time_limit=true, \DateInterval $backlog=null) {
+	public function addParticipant(Conversation $conversation, User $participant) {
 		$meta = new ConversationMetadata;
 		$meta->setConversation($conversation);
 		$meta->setUser($participant);
-		$conversation->addMetadata($meta);
-		$this->em->persist($meta);
+		$conversation->addMetadatum($meta);
+/*
+	old logic: set nothing as read. more logical, but overwhelms new characters
+		$meta->setUnread($conversation->getMessages()->count());
+*/
+//	new logic: set nothing as unread.
+		$meta->setUnread(0);
 
-		if ($time_limit) {
-			$meta->setUnread(0);
-			$span = new Timespan;
-			$span->setMetadata($meta);
-			$from = new \DateTime("now");
-			if ($backlog) {
-				$from->sub($backlog);
-			}
-			$span->setAccessFrom($from);
-			$meta->addTimespan($span);
-			$this->em->persist($span);
-		} else {
-			$meta->setUnread($conversation->getMessages()->count());
-		}
+		$this->em->persist($meta);
 	}
 
 	public function removeParticipant(Conversation $conversation, User $participant) {
 		$meta = $conversation->findMeta($participant);
 		if ($meta) {
-			// update or generate end-of-access timespan
-			if ($meta->getTimespans()->isEmpty()) {
-				$span = new Timespan;
-				$span->setMetadata($meta);
-				$span->setAccessUntil(new \DateTime("now"));
-				$meta->addTimespan($span);
-				$this->em->persist($span);
-			} else {
-				foreach ($meta->getTimespans() as $span) {
-					if (!$span->getAccessUntil()) {
-						$span->setAccessUntil(new \DateTime("now"));
-					}
-				}
-			}
-
-			// remove all rights to this conversation
-			foreach ($meta->getRights() as $right) {
-				$meta->removeRight($right);
-			}
+			// remove from conversation
+			$meta->getConversation()->removeMetadatum($meta);
+			$meta->getUser()->removeConversationsMetadatum($meta);
+			$this->em->remove($meta);
 		}
 	}
 
@@ -361,49 +376,33 @@ class MessageManager {
 		if ($realm) {
 			$members = $realm->findMembers();
 
-			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
-			$query->setParameter('members', $members->toArray());
-			$users = new ArrayCollection($query->getResult());
+			if ($members && !$members->isEmpty()) {
+				$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u WHERE u.app_user IN (:members)');
+				$query->setParameter('members', $members->toArray());
+				$users = new ArrayCollection($query->getResult());
 
-			$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u JOIN u.conversations_metadata m WHERE m.conversation = :conversation');
-			$query->setParameter('conversation', $conversation);
-			$participants = new ArrayCollection($query->getResult());
+				$query = $this->em->createQuery('SELECT u FROM MsgBundle:User u JOIN u.conversations_metadata m WHERE m.conversation = :conversation');
+				$query->setParameter('conversation', $conversation);
+				$participants = new ArrayCollection($query->getResult());
 
-			foreach ($users as $user) {
-				if (!$participants->contains($user)) {
-					// this user is missing from the conversation, but should be there - add him with 3 days of backlog
-					$this->addParticipant($conversation, $user, true, new \DateInterval('P3D'));
-					$added++;
-				} else {
-					// he's a participant - but does he have an open-ended timespan?
-					$meta = $conversation->findMeta($user);
-					$open = false;
-					foreach ($meta->getTimespans() as $timespan) {
-						if ($timespan->getAccessUntil()==null) {
-							$open = true;
-						}
-					}
-					if (!$open) {
-						$span = new Timespan;
-						$span->setMetadata($meta);
-						$span->setAccessFrom(new \DateTime("now"));
-						$meta->addTimespan($span);
-						$this->em->persist($span);
+				foreach ($users as $user) {
+					if (!$participants->contains($user)) {
+						// this user is missing from the conversation, but should be there
+						$this->addParticipant($conversation, $user);
+						$participants->add($user); // make sure we don't add anyone twice
+						$added++;
 					}
 				}
-			}
 
-			foreach ($participants as $part) {
-				if (!$users->contains($part)) {
-					// this user is in the conversation, but shouldn't - remove him
-					$this->removeParticipant($conversation, $part);
-					$removed++;
+				foreach ($participants as $part) {
+					if (!$users->contains($part)) {
+						// this user is in the conversation, but shouldn't - remove him
+						$this->removeParticipant($conversation, $part);
+						$participants->removeElement($part);
+						$removed++;
+					}
 				}
-			}
-
-			// TODO: make sure the ruler has owner permissions
-
-			
+			}			
 		}
 		return array('added'=>$added, 'removed'=>$removed);
 	}
@@ -411,9 +410,7 @@ class MessageManager {
 	public function setAllUnread(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
-		$query = $this->em->createQuery('SELECT m,c FROM MsgBundle:ConversationMetadata m JOIN m.conversation c WHERE m.user = :me');
-		$query->setParameter('me', $user);
-		foreach ($query->getResult() as $meta) {
+		foreach ($user->getConversationsMetadata() as $meta) {
 			$count = $meta->getConversation()->getMessages()->count();
 			$meta->setUnread($count);
 			$meta->setLastRead(null);

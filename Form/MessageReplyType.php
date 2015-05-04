@@ -37,7 +37,7 @@ class MessageReplyType extends AbstractType {
 		$builder->add('reply_to', 'hidden');
 
 
-		$builder->add('submit', 'submit', array('label'=>'message.reply.submit', 'attr'=>array('class'=>'cmsg_button')));
+		$builder->add('submit', 'submit', array('label'=>'message.reply.submit'));
 	}
 
 }

@@ -3,6 +3,10 @@ Messaging Bundle
 
 This is a bundle for in-app messaging services using Symfony2 and (at the moment) Doctrine 2.
 
+This is an old (deprecated) branch with timestamps on access. The idea was that people joining a conversation would get everything after their join, but not before, and people leaving a conversation would retain access to everything before they left, but not after.
+There were problems with complexity, especially if people re-joined a conversation they had been members in before. This branch is quite a bit behind the master branch and should only be used if you really need this timestamp feature, and most likely you will want to port them to the master branch.
+
+
 Dependencies
 ------------
 PHP Markdown. Add this to composer.json: 

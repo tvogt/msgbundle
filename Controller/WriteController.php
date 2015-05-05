@@ -4,7 +4,6 @@ namespace Calitarus\MessagingBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -33,10 +32,8 @@ class WriteController extends Controller {
 		$user = $this->get('message_manager')->getCurrentUser();
 		$character = $this->get('appstate')->getCharacter();
 
-		if ($realm) {
-			if (!$character->findRealms()->contains($realm)) {
-				$realm = null;
-			}
+		if ($realm && !$character->findRealms()->contains($realm)) {
+			$realm = null;
 		}
 
 		if ($realm) {
@@ -132,8 +129,8 @@ class WriteController extends Controller {
 						// no topic given so we increment the last one
 						preg_match("/(.*) ([0-9]+)$/", $source->getConversation()->getTopic(), $matches);
 						if ($matches) {
-							$nr = intval($matches[2])+1;
-							$topic = $matches[1]+" $nr";
+							$nr = (int)$matches[2] + 1;
+							$topic = $matches[1]." $nr";
 						} else {
 							$topic = $source->getConversation()->getTopic()." 2";
 						}

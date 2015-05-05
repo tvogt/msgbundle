@@ -40,19 +40,17 @@
 			<li><button class="reply cmsg_button">{{ 'button.reply'|trans({},"MsgBundle") }}</button></li>
 			<li><button class="split cmsg_button">{{ 'button.split'|trans({},"MsgBundle") }}</button></li>
 		</ul>
-		{% if meta %}
 		<ul class="cmsg_flags">
-			<li><button class="cmsg_icon icon-star3{% if meta.hasflagbyname("important") %} active{% endif %}" title="{{ 'flag.important'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="important"></button></li>
-			<li><button class="cmsg_icon icon-lightning{% if meta.hasflagbyname("act") %} active{% endif %}" title="{{ 'flag.act'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="act"></button></li>
-			<li><button class="cmsg_icon icon-history{% if meta.hasflagbyname("remind") %} active{% endif %}" title="{{ 'flag.remind'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="remind"></button></li>
-			<li><button class="cmsg_icon icon-drawer2{% if meta.hasflagbyname("keep") %} active{% endif %}" title="{{ 'flag.keep'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="keep"></button></li>
+			<li><button class="cmsg_icon icon-star3{% if meta and meta.hasflagbyname("important") %} active{% endif %}" title="{{ 'flag.important'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="important"></button></li>
+			<li><button class="cmsg_icon icon-lightning{% if meta and meta.hasflagbyname("act") %} active{% endif %}" title="{{ 'flag.act'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="act"></button></li>
+			<li><button class="cmsg_icon icon-history{% if meta and meta.hasflagbyname("remind") %} active{% endif %}" title="{{ 'flag.remind'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="remind"></button></li>
+			<li><button class="cmsg_icon icon-drawer2{% if meta and meta.hasflagbyname("keep") %} active{% endif %}" title="{{ 'flag.keep'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="keep"></button></li>
 		</ul>	
 		<ul class="cmsg_tags">
 			{% for tag in meta.tags %}
 				<li>{{ tag }}</li>
 			{% endfor %}
 		</ul>
-		{% endif %}
 	</div>
 
 	{% if hide is defined %}
@@ -68,10 +66,11 @@
 			{% if last is defined and last is not null and last.timestamp > message.ts.timestamp and last.timestamp < related.target.ts.timestamp %}
 				<li>
 					{% if meta %}
-						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":related.target.findmeta(meta.user)} only %}</li>
+						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":related.target.findmeta(meta.user)} only %}
 					{% else %}
-						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":false} only %}</li>
+						{% include "MsgBundle:Read:one_message.html.twig" with {"last":last, "message":related.target, "meta":false} only %}
 					{% endif %}
+                </li>
 			{% else %}
 				<li>{{ 'message.fromshort'|trans({},"MsgBundle") }} {{ related.target.sender.name }} ({{ related.target.ts|date }})</li>
 			{% endif %}

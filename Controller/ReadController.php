@@ -5,15 +5,12 @@ namespace Calitarus\MessagingBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 use Calitarus\MessagingBundle\Entity\MessageMetadata;
-use Calitarus\MessagingBundle\Entity\User;
 
 
 /**
@@ -48,12 +45,11 @@ class ReadController extends Controller {
 			}
 		}
 
-		// TODO: replace getFlaggedMessages() with countFlaggesMessages calls for performance
 		return array(
 			'total' => $total,
 			'new' => $new,
 			'unread' => $this->get('message_manager')->getUnreadMessages($user),
-			'flagged' => count($this->get('message_manager')->getFlaggedMessages($user)),
+			'flagged' => $this->get('message_manager')->countFlaggedMessages($user),
 			'local_news' => $this->get('news_manager')->getLocalList($user->getAppUser())
 		);
 	}

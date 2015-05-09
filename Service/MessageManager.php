@@ -73,11 +73,7 @@ class MessageManager {
 				$qb->expr()->isNull('msg.id'),
 				$qb->expr()->eq('msg.depth', 0),
 				$qb->expr()->gt('msg.ts', 'm.last_read')
-			))
-			->andWhere($qb->expr()->orX(
-				$qb->expr()->isNull('meta.id'),
-				$qb->expr()->eq('meta.user', 'm.user')
-		));
+			));
 
 		$qb->orderBy('msg.ts', 'ASC');
 		$query = $qb->getQuery();

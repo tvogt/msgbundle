@@ -7,7 +7,7 @@
 		{% endif %}
 		{{ 'index.msg'|trans({"%sender%":sender, "%day%":message.cycle|gametime("short"), "%ts%":message.ts|date}, "MsgBundle")|raw }}
 		{% if show_conversation is defined %}
-			{{ 'flagged.msg'|trans({"%url%":path("cmsg_conversation", {"meta":meta.id}), "%topic%":message.conversation.topic}, "MsgBundle")|raw }}
+			{{ 'flagged.msg'|trans({"%url%":path("cmsg_conversation", {"meta":message.conversation.findmeta(meta.user).id}), "%topic%":message.conversation.topic}, "MsgBundle")|raw }}
 		{% endif %}
 	</div>
 	{% if hide is defined %}

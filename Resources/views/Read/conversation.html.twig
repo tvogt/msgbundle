@@ -5,6 +5,20 @@
 
 {% include "MsgBundle:Read:one_conversation.html.twig" with {"meta": meta, "conversation":data[0]} %}
 
+{% if unread is not empty %}
+	<hr />
+	<h2>{{ 'unread.title'|trans({}, "MsgBundle")|title }}</h2>
+	<ul>
+	{% for cmeta in unread %}
+		<li>
+			<a href="{{ path('cmsg_conversation', {'meta':cmeta.id}) }}">{{ cmeta.conversation.topic }}</a>
+			<br />
+			<small>{{ 'summary.new2'|trans({"%new%":cmeta.unread}, "MsgBundle") }}</small>
+		</li>
+	{% endfor %}
+	</ul>
+{% endif %}
+
 <div id="replydialog" title="{{ 'message.reply.title'|trans({}, "MsgBundle")|title }}">
 	<button id="syntaxhelp" class="cmsg_button">syntax help</button>
 	<div id="help" style="display:none">

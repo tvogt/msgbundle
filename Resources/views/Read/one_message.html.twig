@@ -46,11 +46,13 @@
 			<li><button class="cmsg_icon icon-history{% if meta and meta.hasflagbyname("remind") %} active{% endif %}" title="{{ 'flag.remind'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="remind"></button></li>
 			<li><button class="cmsg_icon icon-drawer2{% if meta and meta.hasflagbyname("keep") %} active{% endif %}" title="{{ 'flag.keep'|trans({},"MsgBundle") }}" data-msg="{{ message.id }}" data-flag="keep"></button></li>
 		</ul>	
+{#
 		<ul class="cmsg_tags">
 			{% for tag in meta.tags %}
 				<li>{{ tag }}</li>
 			{% endfor %}
 		</ul>
+#}
 	</div>
 
 	{% if hide is defined %}

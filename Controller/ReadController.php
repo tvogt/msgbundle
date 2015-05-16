@@ -116,7 +116,8 @@ class ReadController extends Controller {
 			'meta' => $meta,
 			'last' => $last,
 			'data' => $data,
-			'veryold' => $veryold
+			'veryold' => $veryold,
+			'unread' => $this->get('message_manager')->getUnreadMessages($user),
 		);
 	}
 

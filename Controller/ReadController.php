@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 use Calitarus\MessagingBundle\Entity\MessageMetadata;
@@ -95,7 +96,7 @@ class ReadController extends Controller {
 		$user = $this->get('message_manager')->getCurrentUser();
 
 		if ($meta->getUser() != $user) {
-			throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
 		$last = $meta->getLastRead();
@@ -128,7 +129,7 @@ class ReadController extends Controller {
 		$user = $this->get('message_manager')->getCurrentUser();
 
 		if ($meta->getUser() != $user) {
-			throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
 		$id = $request->query->get('id');

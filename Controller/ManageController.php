@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Calitarus\MessagingBundle\Entity\ConversationMetadata;
 
@@ -24,7 +25,7 @@ class ManageController extends Controller {
 		$user = $this->get('message_manager')->getCurrentUser();
 
 		if ($meta->getUser() != $user) {
-			throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
 		$metas = $meta->getConversation()->getMetadata();
@@ -45,7 +46,7 @@ class ManageController extends Controller {
 
 		$meta = $this->getDoctrine()->getManager()->getRepository('MsgBundle:ConversationMetadata')->find($id);
 		if (!$meta || $meta->getUser() != $user) {
-			throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+			throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 		}
 
 		$convos =  $this->get('message_manager')->leaveConversation($meta, $user);

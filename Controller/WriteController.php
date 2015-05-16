@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Calitarus\MessagingBundle\Entity\Message;
 
@@ -114,7 +115,7 @@ class WriteController extends Controller {
 				$meta = $source->getConversation()->findMeta($user);
 			}
 			if (!$meta || $meta->getUser() != $user) {
-				throw $this->createAccessDeniedException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
+				throw new AccessDeniedHttpException($this->get('translator')->trans('error.conversation.noaccess', array(), "MsgBundle"));
 			}
 
 			if ($source) {

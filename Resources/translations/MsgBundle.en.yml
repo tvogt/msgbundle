@@ -82,6 +82,8 @@ message:
 participants:
  title:     Conversation Participants
  managed:   This conversation is linked to %reference% and its participants list is automatically updated.
+ do:
+  remove:   remove this participant
 
 right:
  owner:                 owner
@@ -94,6 +96,7 @@ error:
  noaccess:			No access rights to this information.
  conversation:
   noaccess:     You do not have access to this conversation.
+  noright:      You do not have the required right on this conversation.
 
 button:
  reply:   reply

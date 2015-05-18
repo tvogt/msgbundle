@@ -5,7 +5,7 @@
 
 		<a href="{{ path('cmsg_participants', {'meta':meta.id}) }}"{% if participantscount < 5 %}
 		 class="tt" title="{% for m in conversation.metadata %}{{ m.user.name }}{% if loop.last == false %}, {% endif %}{% endfor %}" 
-		 {% endif %}>{{ 'conversation.participants.label'|trans({"%count%":participantscount}, "MsgBundle") }}</a>
+		 {% endif %}><button class="cmsg_button">{{ 'conversation.participants.label'|trans({"%count%":participantscount}, "MsgBundle") }}</button></a>
 
 		{% if conversation.appreference is null %}
 			<button class="convo_leave cmsg_button" data-id="{{ meta.id }}" title="{{ 'conversation.leave.help'|trans({}, "MsgBundle") }}">{{ 'conversation.leave.label'|trans({}, "MsgBundle") }}</button>

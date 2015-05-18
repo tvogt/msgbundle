@@ -27,9 +27,23 @@
 				{% endif %}
 				</td>
 			{% endfor %}
+			{% if my_meta.hasRightByName("owner") or my_meta.hasRightByName("remove") %}
+				<td align="center">
+					<button class="action_remove" data-id="{{ meta.user.id }}">{{ ('participants.do.remove')|trans({}, "MsgBundle") }}</button>
+				</td>
+			{% endif %}
 		</tr>
 	{% endfor %}
 	</tbody>
 </table>
+{% endblock %}
 
+{% block jquery %}
+$(".action_remove").click(function(){
+	var id = $(this).data("id");
+	$.post('{{ path('cmsg_participant_remove') }}', { "meta": {{ my_meta.id }}, "id": id }, function(){
+		console.log($(this).closest("tr"));
+		$(this).closest("tr").remove();
+	});
+});
 {% endblock %}

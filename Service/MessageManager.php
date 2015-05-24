@@ -56,6 +56,7 @@ class MessageManager {
 	public function getContactsList(User $user=null) {
 		if (!$user) { $user=$this->getCurrentUser(); }
 
+		// TODO: this should filter out inactives, but to do that I need to access M&F logic (account_level > 0)
 		$query = $this->em->createQuery('SELECT DISTINCT u FROM MsgBundle:User u JOIN u.conversations_metadata m1 JOIN m1.conversation c JOIN c.metadata m2 where m2.user = :me AND u != :me');
 		$query->setParameter('me', $user);
 		return $query->getResult();

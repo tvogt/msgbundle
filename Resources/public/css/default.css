@@ -201,3 +201,7 @@ button.cmsg_icon:hover {
 button#hidetoggle {
 	margin: 0.5em 2em;
 }
+
+.topmargin {
+	margin-top: 2em;
+}

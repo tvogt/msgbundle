@@ -9,8 +9,9 @@ index:
  first:     first message
  last:      last message
  msg:       by %sender% on %day% (%ts%)
- msgshort:  by %sender% on %day%
+ msgshort:  %day%
  ref:       Conversations for %ref%:
+ ref2:      Private and Group Conversations:
 
 summary:
  title:		messages summary

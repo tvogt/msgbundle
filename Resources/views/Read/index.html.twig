@@ -6,13 +6,13 @@
 	<td align="right">{{ meta.conversation.messages.count }}</td>
 	<td align="right">{{ meta.unread }}</td>
 	<td align="right">{{ meta.conversation.metadata.count }}</td>
-	<td>
+	<td align="right">
 		{% set msg = meta.conversation.messages.first %}
 		{% if msg %}
 			{{ 'index.msgshort'|trans({"%sender%":msg.sender?link(msg.sender.appuser):'-', "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
 		{% endif %}
 	</td>
-	<td>
+	<td align="right">
 		{% set msg = meta.conversation.messages.last %}
 		{% if msg %}
 			{{ 'index.msgshort'|trans({"%sender%":msg.sender?link(msg.sender.appuser):'-', "%day%":msg.cycle|gametime("short")}, "MsgBundle")|raw }}
@@ -34,45 +34,58 @@
 
 {% import _self as macros %}
 
+{% block includes %}
+	{{ parent() }}
+	<script src="{{ asset('bundles/bm2site/tablesorter/jquery.tablesorter.min.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 <h2>{{ 'index.title'|trans({}, "MsgBundle")|title }}</h2>
 
 <div id="ajax_errors"></div>
 {% set group = null %}
-<table class="cmsg_table">
-	<thead>
-		<tr>
-			<th>{{ 'index.topic'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.messages'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.participants'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
-			<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
-			<th style="width:12em"></th>{# FIXME: this is a kludge to prevent the buttons from wrapping #}
-		</tr>
-	</thead>
-	<tbody>
-		{% for metadata in conversations %}
-			{% if metadata.conversation.appreference != group %}
+{% for metadata in conversations %}
+	{% if metadata.conversation.appreference != group %}
+		{% if group == null %}
+			</tbody></table>
+		{% endif %}
+		<table class="cmsg_table topmargin">
+			<thead>
 				<tr>
 					<td colspan="7" class="cmsg_header">
-						<hr />
 						{% if metadata.conversation.appreference %}
 							{{ "index.ref"|trans({"%ref%":link(metadata.conversation.appreference)}, "MsgBundle")|raw }}
 							<a href="{{ path("cmsg_new_conversation_in_group", {"realm":metadata.conversation.appreference.id}) }}"><button class="cmsg_button">{{ 'conversation.new.label'|trans({}, "MsgBundle") }}</button></a>
+						{% else %}
+							{{ 'index.ref2'|trans({}, "MsgBundle") }}
 						{% endif %}
 					</td>
 				</tr>
-				{% set group = metadata.conversation.appreference %}
-			{% endif %}
-			{{ macros.conversationrow(metadata, 0) }}
-		{% endfor %}
-	</tbody>
-</table>
+				<tr>
+					<th>{{ 'index.topic'|trans({}, "MsgBundle") }}</th>
+					<th>{{ 'index.messages'|trans({}, "MsgBundle") }}</th>
+					<th>{{ 'index.unread'|trans({}, "MsgBundle") }}</th>
+					<th>{{ 'index.participants'|trans({}, "MsgBundle") }}</th>
+					<th>{{ 'index.first'|trans({}, "MsgBundle") }}</th>
+					<th>{{ 'index.last'|trans({}, "MsgBundle") }}</th>
+					<th style="width:12em" data-sorter="false"></th>{# FIXME: this is a kludge to prevent the buttons from wrapping #}
+				</tr>
+			</thead>
+			<tbody>
+		{% set group = metadata.conversation.appreference %}
+	{% endif %}
+	{{ macros.conversationrow(metadata, 0) }}
+{% endfor %}
+</tbody></table>
 
 {% endblock %}
 
 {% block jquery %}
+$(".cmsg_table").tablesorter();
+$(".cmsg_table").bind("sortStart",function() {
+	$(".icon-forward").remove();
+});
+
 var request;
 $("button.convo_leave").click(function(){
 	var id = $(this).closest("tr").data('id');

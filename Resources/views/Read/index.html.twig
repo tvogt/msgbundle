@@ -44,8 +44,10 @@
 
 <div id="ajax_errors"></div>
 {% set group = null %}
+{% set first = true %}
 {% for metadata in conversations %}
-	{% if metadata.conversation.appreference != group %}
+	{% if metadata.conversation.appreference != group or first %}
+		{% set first = false %}
 		{% if group == null %}
 			</tbody></table>
 		{% endif %}

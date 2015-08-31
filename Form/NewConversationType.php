@@ -46,7 +46,7 @@ class NewConversationType extends AbstractType {
 /* disabled until I fix that
 		$builder->add('parent', 'entity', array(
 			'required' => false,
-			'empty_value' => 'conversation.parent.empty',
+			'placeholder' => 'conversation.parent.empty',
 			'label' => 'conversation.parent.label',
 			'class' => 'MsgBundle:Conversation',
 			'property' => 'topic'
@@ -111,7 +111,7 @@ class NewConversationType extends AbstractType {
 					'multiple'=>true,
 					'expanded'=>true,
 					'label' => 'conversation.recipients.label',
-					'empty_value' => 'conversation.recipients.empty',
+					'placeholder' => 'conversation.recipients.empty',
 					'class' => 'BM2SiteBundle:Character',
 					'property' => 'name',
 					'query_builder'=>function(EntityRepository $er) use ($recipients) {

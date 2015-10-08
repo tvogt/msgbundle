@@ -83,7 +83,7 @@ class WriteController extends Controller {
 */
 			$this->get('message_manager')->newConversation($user, $recipients, $data['topic'], $data['content'], null, $realm);
 			$this->getDoctrine()->getManager()->flush();
-			return $this->redirect($this->get('router')->generate('cmsg_summary'));
+			return $this->redirectToRoute('cmsg_summary');
 		}
 
 		return array(
